@@ -1,0 +1,6 @@
+name: MCDBridge
+version: 1.16.1
+author: Wcash
+main: com.Wcash.MCDBridge
+api-version: 1.16
+website: https://github.com/DoubleYouCash/MCDBridge
