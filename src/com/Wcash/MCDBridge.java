@@ -9,8 +9,17 @@ import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.javacord.api.DiscordApi;
+import org.javacord.api.DiscordApiBuilder;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.javacord.api.DiscordApi;
+import org.javacord.api.DiscordApiBuilder;
+import org.javacord.api.entity.channel.ServerTextChannel;
+import org.javacord.api.entity.channel.TextChannel;
+import org.javacord.api.entity.server.Server;
 
 import java.io.IOException;
+import java.util.Optional;
 
 /**
  * Main Plugin File. This is where the onEnable and onDisable functions run
@@ -20,6 +29,8 @@ import java.io.IOException;
  */
 public final class MCDBridge extends JavaPlugin implements Listener {
 
+    private DiscordApi api;
+
     @Override
     public void onEnable() {
 
@@ -28,18 +39,32 @@ public final class MCDBridge extends JavaPlugin implements Listener {
         FileConfiguration config = this.getConfig();
         this.getConfig().options().copyDefaults(false);
 
+        DiscordApi api = new DiscordApiBuilder().setToken(config.getString("auth")).login().join();
+        System.out.println(api.createBotInvite());
 
-        /* Initializes All Listeners for Chat */
-        getServer().getPluginManager().registerEvents(this, this); //Necessary for listener events in this class
-        getServer().getPluginManager().registerEvents(new ChatListener(config.getString("url")), this); // Initializes Chat Listener
-        getServer().getPluginManager().registerEvents(new LoginListener(config.getString("url")), this); //Initializes Login Listener
-        getServer().getPluginManager().registerEvents(new LogoutListener(config.getString("url")), this); // Initializes Logout Listener
+        Optional<Server> serverList = api.getServerById(config.getString("server"));
+        if (serverList.isPresent()) {
+            Server server = serverList.get();
+            Optional<ServerTextChannel> channelList = api.getServerTextChannelById(config.getString("channel"));
+            if (channelList.isPresent()) {
+                ServerTextChannel channel = channelList.get();
+
+                getServer().getPluginManager().registerEvents(this, this); //Necessary for listener events in this class
+                getServer().getPluginManager().registerEvents(new ChatListener(channel), this); // Initializes Chat Listener
+                getServer().getPluginManager().registerEvents(new LoginListener(channel), this); //Initializes Login Listener
+                getServer().getPluginManager().registerEvents(new LogoutListener(channel), this); // Initializes Logout Listener
+                api.addListener(new DiscordListener(this));
+            }
+        }
 
     }
 
     @Override
     public void onDisable(){
-
+        if (api != null) {
+            api.disconnect();
+            api = null;
+        }
     }
 
 }

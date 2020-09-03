@@ -1,10 +1,17 @@
 package com.Wcash;
 
 import com.Wcash.DiscordWebhook;
+import de.comroid.eval.model.Embed;
+
+import java.awt.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerLoginEvent;
+import org.javacord.api.entity.channel.ServerTextChannel;
+import org.javacord.api.entity.message.MessageBuilder;
+import org.javacord.api.entity.message.MessageDecoration;
+import org.javacord.api.entity.message.embed.EmbedBuilder;
 
 import java.io.IOException;
 
@@ -16,23 +23,21 @@ import java.io.IOException;
  */
 public class LoginListener implements Listener {
 
-    private String webhookURL;
+    private ServerTextChannel channel;
 
-    public LoginListener(String webhookURL) {
-        this.webhookURL = webhookURL;
+    public LoginListener(ServerTextChannel channel) {
+        this.channel = channel;
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onLogin(PlayerLoginEvent event) {
-        DiscordWebhook login = new DiscordWebhook(webhookURL);
-        login.setUsername("Minecraft Server Chat");
-        login.setContent(":heavy_plus_sign: **" + event.getPlayer().getName() + " joined the server**");
-        try {
-            login.execute();
-        } catch (IOException e) {
-            System.out.println("Error Sending Login Message!");
-            e.printStackTrace();
-        }
+        new MessageBuilder()
+                .append(event.getPlayer().getDisplayName())
+                .append(" » ")
+                .setEmbed(new EmbedBuilder()
+                        .setTitle(MessageDecoration.BOLD + event.getPlayer().toString() + " joined the server")
+                        .setColor(Color.GREEN))
+                .send(channel);
     }
 
 }

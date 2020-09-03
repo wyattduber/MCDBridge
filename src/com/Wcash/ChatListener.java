@@ -8,6 +8,11 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.javacord.api.entity.channel.ServerTextChannel;
+import org.javacord.api.entity.channel.TextChannel;
+import org.javacord.api.entity.message.MessageBuilder;
+import org.javacord.api.event.message.MessageCreateEvent;
+import org.javacord.api.listener.message.MessageCreateListener;
 
 import java.io.IOException;
 import java.util.Set;
@@ -21,14 +26,23 @@ import java.util.Set;
 public class ChatListener implements Listener {
 
     private String webhookURL = "";
+    private TextChannel channel = new DiscordListener(null).getServerChannel();
 
-    public ChatListener(String webhookURL) {
-        this.webhookURL = webhookURL;
+    public ChatListener(ServerTextChannel channel) {
+        this.channel = channel;
+
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onChat(AsyncPlayerChatEvent event) {
-        DiscordWebhook chat = new DiscordWebhook(webhookURL);
+        new MessageBuilder()
+                .append(event.getPlayer().getDisplayName())
+                .append(" » ")
+                .append(event.getMessage())
+                .send(channel);
+    }
+
+        /*DiscordWebhook chat = new DiscordWebhook(webhookURL);
         chat.setUsername("Minecraft Server Chat");
         chat.setContent(event.getPlayer().getDisplayName() + " » " + event.getMessage());
         try {
@@ -38,5 +52,7 @@ public class ChatListener implements Listener {
             e.printStackTrace();
         }
     }
+
+         */
 
 }

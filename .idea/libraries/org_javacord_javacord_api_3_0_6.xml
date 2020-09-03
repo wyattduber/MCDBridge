@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="org.javacord:javacord-api:3.0.6" type="repository">
+    <properties maven-id="org.javacord:javacord-api:3.0.6" />
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/javacord/javacord-api/3.0.6/javacord-api-3.0.6.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
