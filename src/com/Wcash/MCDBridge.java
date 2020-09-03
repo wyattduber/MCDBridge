@@ -28,64 +28,12 @@ public final class MCDBridge extends JavaPlugin implements Listener {
         FileConfiguration config = this.getConfig();
         this.getConfig().options().copyDefaults(false);
 
-        getServer().getPluginManager().registerEvents(this, this); //Necessary for listener events
 
-        /* Initializes the Chat Listener */
-
-        getServer().getPluginManager().registerEvents(new Listener() {
-
-            @EventHandler(priority = EventPriority.MONITOR)
-            public void onChat(AsyncPlayerChatEvent event) {
-                DiscordWebhook chat = new DiscordWebhook(config.getString("url"));
-                chat.setUsername("Minecraft Server Chat");
-                chat.setContent(event.getPlayer().getDisplayName() + " » " + event.getMessage());
-                try {
-                    chat.execute();
-                } catch (IOException e) {
-                    System.out.println("Error Sending Chat Message!");
-                    e.printStackTrace();
-                }
-            }
-
-        }, this);
-
-        /* Initializes the Login Listener */
-
-        getServer().getPluginManager().registerEvents(new Listener() {
-
-            @EventHandler(priority = EventPriority.MONITOR)
-            public void onLogin(PlayerLoginEvent event) {
-                DiscordWebhook login = new DiscordWebhook(config.getString("url"));
-                login.setUsername("Minecraft Server Chat");
-                login.setContent(":heavy_plus_sign: **" + event.getPlayer().getName() + " joined the server**");
-                try {
-                    login.execute();
-                } catch (IOException e) {
-                    System.out.println("Error Sending Login Message!");
-                    e.printStackTrace();
-                }
-            }
-
-        }, this);
-
-        /* Initializes the Logout Listener */
-
-        getServer().getPluginManager().registerEvents(new Listener() {
-
-            @EventHandler(priority = EventPriority.MONITOR)
-            public void onLogout(PlayerQuitEvent event) {
-                DiscordWebhook logout = new DiscordWebhook(config.getString("url"));
-                logout.setUsername("Minecraft Server Chat");
-                logout.setContent(":heavy_minus_sign: **" + event.getPlayer().getName() + " left the server**");
-                try {
-                    logout.execute();
-                } catch (IOException e) {
-                    System.out.println("Error Sending Logout Message!");
-                    e.printStackTrace();
-                }
-            }
-
-        }, this);
+        /* Initializes All Listeners for Chat */
+        getServer().getPluginManager().registerEvents(this, this); //Necessary for listener events in this class
+        getServer().getPluginManager().registerEvents(new ChatListener(config.getString("url")), this); // Initializes Chat Listener
+        getServer().getPluginManager().registerEvents(new LoginListener(config.getString("url")), this); //Initializes Login Listener
+        getServer().getPluginManager().registerEvents(new LogoutListener(config.getString("url")), this); // Initializes Logout Listener
 
     }
 
