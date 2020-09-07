@@ -19,13 +19,22 @@
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
-          <root url="jar://$USER_HOME$/OneDrive/Desktop/MCDBridge-1.0-SNAPSHOT.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/javacord-3.0.6-shaded.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="library" exported="" name="de.comroid:javacord-utilities:1.1.0" level="project" />
-    <orderEntry type="library" exported="" name="org.javacord:javacord-api:3.0.6" level="project" />
+    <orderEntry type="module-library" exported="">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/PermissionsEx-Bukkit.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/lib/PermissionsEx-Bukkit.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
   </component>
 </module>

@@ -1,11 +1,5 @@
-#Put the Discord Channel WebHook URL in the 'url' section below to sync this plugin with your Discord Channel.
-url: ''
-
 #Bot Auth Token
-botauth: ''
-
-#Server ID
-server: ''
+BotToken: "BOTTOKEN"
 
 #Channel ID
-channel: ''
+Channel: "000000000000000000"

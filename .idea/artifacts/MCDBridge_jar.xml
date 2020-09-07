@@ -3,6 +3,7 @@
     <output-path>$PROJECT_DIR$/../Build/MCDBridge</output-path>
     <root id="archive" name="MCDBridge.jar">
       <element id="module-output" name="MCDBridge" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/javacord-3.0.6-shaded.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/../API/spigot-api-1.16.2-R0.1-20200826.082422-32.jar" path-in-jar="/" />
     </root>
   </artifact>

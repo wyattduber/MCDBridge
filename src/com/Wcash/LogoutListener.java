@@ -1,20 +1,15 @@
 package com.Wcash;
 
-import com.Wcash.DiscordWebhook;
-import com.Wcash.MCDBridge;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.javacord.api.entity.channel.ServerTextChannel;
+import org.javacord.api.entity.channel.TextChannel;
 import org.javacord.api.entity.message.MessageBuilder;
 import org.javacord.api.entity.message.MessageDecoration;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 
 import java.awt.*;
-import java.io.IOException;
 
 /**
  * Chat Listener to listen for any player logout on the server, then sends it to the Discord Channel
@@ -24,22 +19,27 @@ import java.io.IOException;
  */
 public class LogoutListener implements Listener {
 
-    private ServerTextChannel channel;
+    private TextChannel channel;
+    private boolean quit = false;
 
-    public LogoutListener(ServerTextChannel channel) {
+    public LogoutListener(TextChannel channel) {
         this.channel = channel;
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
-    public void onLogin(PlayerQuitEvent event) {
+    public void onLogout(PlayerQuitEvent event) {
+        quit = false;
         new MessageBuilder()
-                .append(event.getPlayer().getDisplayName())
-                .append(" » ")
+                .append("")
                 .setEmbed(new EmbedBuilder()
-                        .setTitle(MessageDecoration.BOLD + event.getPlayer().toString() + " left the server")
+                        .setTitle(":heavy_minus_sign: " + event.getPlayer().getName() + " left the server")
                         .setColor(Color.RED))
                 .send(channel);
+        quit = true;
     }
 
+    public boolean hasQuit() {
+        return quit;
+    }
 
 }

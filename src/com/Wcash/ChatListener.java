@@ -1,21 +1,15 @@
 package com.Wcash;
 
-import com.Wcash.DiscordWebhook;
-import netscape.javascript.JSObject;
-import org.bukkit.command.ConsoleCommandSender;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
-import org.javacord.api.entity.channel.ServerTextChannel;
+import org.bukkit.plugin.Plugin;
 import org.javacord.api.entity.channel.TextChannel;
 import org.javacord.api.entity.message.MessageBuilder;
-import org.javacord.api.event.message.MessageCreateEvent;
-import org.javacord.api.listener.message.MessageCreateListener;
+import org.javacord.api.entity.message.embed.EmbedBuilder;
 
-import java.io.IOException;
-import java.util.Set;
+import java.awt.*;
 
 /**
  * Chat Listener to listen for any player chat message sent on the server, then sends it to the Discord Channel
@@ -25,34 +19,50 @@ import java.util.Set;
  */
 public class ChatListener implements Listener {
 
-    private String webhookURL = "";
-    private TextChannel channel = new DiscordListener(null).getServerChannel();
+    private TextChannel channel;
+    private static TextChannel staticChannel;
+    private LoginListener login;
+    private LogoutListener logout;
+    private Plugin plugin;
 
-    public ChatListener(ServerTextChannel channel) {
+    public ChatListener(TextChannel channel, Plugin plugin) {
         this.channel = channel;
-
+        this.plugin = plugin;
+        staticChannel = channel;
+        login = new LoginListener(channel);
+        logout = new LogoutListener(channel);
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onChat(AsyncPlayerChatEvent event) {
-        new MessageBuilder()
-                .append(event.getPlayer().getDisplayName())
-                .append(" » ")
-                .append(event.getMessage())
-                .send(channel);
-    }
-
-        /*DiscordWebhook chat = new DiscordWebhook(webhookURL);
-        chat.setUsername("Minecraft Server Chat");
-        chat.setContent(event.getPlayer().getDisplayName() + " » " + event.getMessage());
-        try {
-            chat.execute();
-        } catch (IOException e) {
-            System.out.println("Error Sending Chat Message!");
-            e.printStackTrace();
+        CharSequence sequence1 = "§f[§9Discord§f]";
+        CharSequence sequence2 = "[Discord]";
+        CharSequence joinSequence = ":heavy_plus_sign:";
+        CharSequence leaveSequence = ":heavy_minus_sign:";
+        System.out.println(event.getPlayer().getDisplayName());
+        if (!event.getMessage().contains(sequence1) && !event.getMessage().contains(sequence2) && !event.getMessage().contains(joinSequence) && !event.getMessage().contains(leaveSequence)) {
+            new MessageBuilder()
+                    .append(event.getPlayer().getName())
+                    .append(" » ")
+                    .append(event.getMessage())
+                    .send(channel);
         }
     }
 
-         */
+    public static void sendServerStartMessage() {
+        new MessageBuilder()
+                .setEmbed(new EmbedBuilder()
+                        .setTitle(":white_check_mark: Server has Started")
+                        .setColor(Color.GREEN))
+                .send(staticChannel);
+    }
+
+    public static void sendServerCloseMessage() {
+        new MessageBuilder()
+                .setEmbed(new EmbedBuilder()
+                        .setTitle(":octagonal_sign: Server has Closed")
+                        .setColor(Color.RED))
+                .send(staticChannel);
+    }
 
 }
