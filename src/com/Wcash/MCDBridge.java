@@ -97,7 +97,7 @@ public final class MCDBridge extends JavaPlugin implements Listener {
                 getServer().getPluginManager().registerEvents(new ChatListener(channel, this), this); // Initializes MC -> D Chat Listener
                 getServer().getPluginManager().registerEvents(new LoginListener(channel), this); //Initializes Login Listener
                 getServer().getPluginManager().registerEvents(new LogoutListener(channel), this);// Initializes Logout Listener
-                api.addListener(new DiscordListener(this));
+                api.addListener(new DiscordListener(this, api));
             } else {
                 System.out.println("ERROR: Main Text Channel Not Found!");
             }
@@ -110,68 +110,6 @@ public final class MCDBridge extends JavaPlugin implements Listener {
         ChatListener.sendServerStartMessage();
 
     }
-
-    /*public static void initListeners(DiscordApi api, Server server, Plugin plugin, Boolean enable) {
-        ChatListener chat = null;
-        LoginListener login = null;
-        LogoutListener logout = null;
-        DiscordListener d = null;
-        FileConfiguration config = plugin.getConfig();
-        /* Initializes the main DiscordAPI to build all discord functions
-        if (enable) {
-            if (!Objects.equals(config.getString("BotToken"), "BOTTOKEN")) {
-                api = new DiscordApiBuilder().setToken(config.getString("BotToken")).login().join();
-                System.out.println(api.createBotInvite());
-            } else {
-                System.out.println("Please enter a Bot Token in config.yml!");
-            }
-
-            /* Gets the channel in which to route the listeners to
-            if (!Objects.equals(config.getString("Channel"), "000000000000000000") || !Objects.equals(config.getString("Channel"), "")) {
-                Optional<TextChannel> channels = api.getTextChannelById(config.getString("Channel"));
-                if (channels.isPresent()) {
-                    TextChannel channel = channels.get();
-                    chat = new ChatListener(channel, plugin);
-                    login = new LoginListener(channel);
-                    logout = new LogoutListener(channel);
-                    d = new DiscordListener(plugin);
-                    server.getPluginManager().registerEvents(chat, plugin); // Initializes MC -> D Chat Listener
-                    server.getPluginManager().registerEvents(login, plugin); //Initializes Login Listener
-                    server.getPluginManager().registerEvents(logout, plugin);// Initializes Logout Listener
-                    api.addListener(d); // Initialize D -> MC Chat Listener
-                } else {
-                    System.out.println("ERROR: Main Text Channel Not Found!");
-                }
-            }
-        } else {
-            if (!Objects.equals(config.getString("BotToken"), "BOTTOKEN")) {
-                api = new DiscordApiBuilder().setToken(config.getString("BotToken")).login().join();
-                System.out.println(api.createBotInvite());
-            } else {
-                System.out.println("Please enter a Bot Token in config.yml!");
-            }
-
-            /* Gets the channel in which to route the listeners to
-            if (!Objects.equals(config.getString("Channel"), "000000000000000000") || !Objects.equals(config.getString("Channel"), "")) {
-                Optional<TextChannel> channels = api.getTextChannelById(config.getString("Channel"));
-                if (channels.isPresent()) {
-                    TextChannel channel = channels.get();
-                    chat = new ChatListener(channel, plugin);
-                    login = new LoginListener(channel);
-                    logout = new LogoutListener(channel);
-                    d = new DiscordListener(plugin);
-                    server.getPluginManager().registerEvents(chat, plugin); // Initializes MC -> D Chat Listener
-                    server.getPluginManager().registerEvents(login, plugin); //Initializes Login Listener
-                    server.getPluginManager().registerEvents(logout, plugin); // Initializes Logout Listener
-                    api.addListener(d); // Initialize D -> MC Chat Listener
-                } else {
-                    System.out.println("ERROR: Main Text Channel Not Found!");
-                }
-            }
-        }
-    }
-
-    */
 
     @Override
     public void onDisable(){
