@@ -3,22 +3,14 @@ package com.Wcash;
 import com.Wcash.commands.*;
 import org.bukkit.Server;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.DiscordApiBuilder;
 import org.javacord.api.entity.channel.TextChannel;
-import org.javacord.api.event.message.MessageCreateEvent;
-import org.javacord.api.listener.message.MessageCreateListener;
 
-import java.io.File;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -40,11 +32,10 @@ public final class MCDBridge extends JavaPlugin implements Listener {
 
     public static void reloadListeners(DiscordApi api, Plugin plugin, FileConfiguration config, Server server) {
         AsyncPlayerChatEvent.getHandlerList().unregister(plugin);
-        PlayerJoinEvent.getHandlerList().unregister(plugin);
+        PlayerLoginEvent.getHandlerList().unregister(plugin);
         PlayerQuitEvent.getHandlerList().unregister(plugin);
-        ChatListener chat = null;
-        LoginListener login = null;
-        LogoutListener logout = null;
+        System.out.println("§f[§9MCDBridge§f] Listeners Successfully Removed!");
+        api = null;
 
         if (!Objects.equals(config.getString("BotToken"), "BOTTOKEN")) {
             api = new DiscordApiBuilder().setToken(config.getString("BotToken")).login().join();
@@ -55,15 +46,17 @@ public final class MCDBridge extends JavaPlugin implements Listener {
 
         /* Gets the channel in which to route the listeners to */
         if (!Objects.equals(config.getString("Channel"), "000000000000000000") || !Objects.equals(config.getString("Channel"), "")) {
+            assert api != null;
             Optional<TextChannel> channels = api.getTextChannelById(config.getString("Channel"));
             if (channels.isPresent()) {
                 TextChannel channel = channels.get();
-                chat = new ChatListener(channel, plugin);
-                login = new LoginListener(channel);
-                logout = new LogoutListener(channel);
+                System.out.println("§f[§9MCDBridge§f] Text Channel Found!");
                 server.getPluginManager().registerEvents(new ChatListener(channel, plugin), plugin); // Initializes MC -> D Chat Listener
-                server.getPluginManager().registerEvents(new LoginListener(channel), plugin); //Initializes Login Listener
+                System.out.println("§f[§9MCDBridge§f] Chat Listener Successfully Initialized!");
+                server.getPluginManager().registerEvents(new LoginListener(channel), plugin); // Initializes Login Listener
+                System.out.println("§f[§9MCDBridge§f] Login Listener Successfully Initialized!");
                 server.getPluginManager().registerEvents(new LogoutListener(channel), plugin); // Initializes Logout Listener
+                System.out.println("§f[§9MCDBridge§f] Logout Listener Successfully Initialized!");
             } else {
                 System.out.println("ERROR: Main Text Channel Not Found!");
             }
