@@ -1,5 +1,27 @@
-#Bot Auth Token
-BotToken: "BOTTOKEN"
+bot-token: "BOTTOKEN"
+server-id: "000000000000000000"
 
-#Channel ID
-Channel: "000000000000000000"
+roles:
+  - exampleRole1
+  - exampleRole2
+
+exampleRole1:
+  role-id: "000000000000000000"
+  add-commands:
+    - "example command 1"
+    - "example command 2"
+  remove-commands:
+    - "example command 1"
+    - "example command 2"
+
+exampleRole2:
+  role-id: "000000000000000000"
+  add-commands:
+    - "example command 1"
+    - "example command 2"
+  remove-commands:
+    - "example command 1"
+    - "example command 2"
+
+
+

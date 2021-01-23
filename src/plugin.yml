@@ -1,21 +1,12 @@
 name: MCDBridge
-version: 1.0.0
+version: 0.0.1-ALPHA
 author: Wcash
 main: com.Wcash.MCDBridge
 api-version: 1.16
 website: https://github.com/DoubleYouCash/MCDBridge
 commands:
   mcdb:
-    description: Reloads the configuration file
+    description: Main MCDBridge Command
     usage: /mcdb (command) [arg1] [arg2]...
-    permission: mcdbr.reload
-    permission-message: §f[§9MCDBridge§f]§c You don't have permission!
-
-permissions:
-  mcdb.*:
-    description: Gives access to all MCDBRidge Permission Nodes
-    children:
-      mcdbridge.reload: true
-  mcdb.reload:
-    description: Reloads the configuration file
-    default: op
+    permission: mcdb.main
+    permission-message: §f[§9MCDBridge§f]§c You don't have permission to use this command!
