@@ -7,7 +7,6 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.channel.TextChannel;
-import org.javacord.api.entity.message.MessageBuilder;
 import org.javacord.api.entity.permission.Role;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.server.role.UserRoleAddEvent;
@@ -15,8 +14,6 @@ import org.javacord.api.listener.server.role.UserRoleAddListener;
 import org.javacord.api.util.logging.ExceptionLogger;
 
 import java.util.HashMap;
-import java.util.Random;
-import java.util.concurrent.TimeUnit;
 
 public class RoleAddListener implements UserRoleAddListener {
 

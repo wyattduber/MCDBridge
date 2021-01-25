@@ -2,7 +2,6 @@ package com.Wcash.listeners;
 
 import com.Wcash.MCDBridge;
 import com.Wcash.database.Database;
-import org.bukkit.Server;
 import org.bukkit.entity.Player;
 import org.javacord.api.entity.channel.TextChannel;
 import org.javacord.api.entity.message.MessageBuilder;
