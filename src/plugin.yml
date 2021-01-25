@@ -4,9 +4,15 @@ author: Wcash
 main: com.Wcash.MCDBridge
 api-version: 1.16
 website: https://github.com/DoubleYouCash/MCDBridge
+
 commands:
   mcdb:
     description: Main MCDBridge Command
     usage: /mcdb (command) [arg1] [arg2]...
     permission: mcdb.main
     permission-message: §f[§9MCDBridge§f]§c You don't have permission to use this command!
+
+permissions:
+  mcdb.reload:
+    description: Allows to reload the plugin and config files
+    default: op

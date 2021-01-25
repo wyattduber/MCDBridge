@@ -97,6 +97,7 @@ public class PMListener implements MessageCreateListener {
                         event.getChannel().sendMessage("Rewards Given! Message one of the online administrators if this process had any errors or you still haven't received your rewards.");
                         player.sendMessage("§f[§9MCDBridge§f] Rewards Received!");
                         step = 4;
+                        RoleAddListener.removeListener(this);
                     } else {
                         event.getChannel().sendMessage("Rewards Already Given!");
                     }
