@@ -70,7 +70,7 @@ public class RoleAddListener implements UserRoleAddListener {
                 .thenAccept(msg -> {
                     pmChannel = msg.getChannel();
                 }).exceptionally(ExceptionLogger.get());
-        user.addUserAttachableListener(new PMListener(roles, pmChannel));
+        user.addUserAttachableListener(new PMListener(addedRole, pmChannel));
 
     }
 

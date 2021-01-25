@@ -22,20 +22,19 @@ public class PMListener implements MessageCreateListener {
     private int step = 1;
     private Player player;
     private final String[] roleNames;
-    private final Role[] roles;
-    private static Role addedRole;
+    private final Role addedRole;
     private final HashMap<String, String[]> addCommands;
     private final TextChannel channel;
 
 
-    public PMListener(Role[] roles, TextChannel channel) {
+    public PMListener(Role addedRole, TextChannel channel) {
         mcdb = MCDBridge.getPlugin();
         server = mcdb.getServer();
         db = MCDBridge.getDatabase();
         roleNames = mcdb.roleNames;
-        this.roles = roles;
         addCommands = mcdb.addCommands;
         this.channel = channel;
+        this.addedRole = addedRole;
     }
 
     @Override
@@ -93,7 +92,7 @@ public class PMListener implements MessageCreateListener {
                 if (event.getMessageContent().equals(String.format("%06d", randInt))) {
                     if (!db.doesEntryExist(player.getUniqueId())) {
                         db.insertLink(event.getMessageAuthor().getId(), player.getName(), player.getUniqueId());
-                        runCommands();
+                        RoleAddListener.runCommands(mcdb, roleNames, addCommands, addedRole);
                         event.getChannel().sendMessage("Rewards Given! Message one of the online administrators if this process had any errors or you still haven't received your rewards.");
                         player.sendMessage("§f[§9MCDBridge§f] Rewards Received!");
                         step = 4;
@@ -115,10 +114,6 @@ public class PMListener implements MessageCreateListener {
         Random rng = new Random();
         int number = rng.nextInt(999999);
         return String.format("%06d", number);
-    }
-
-    private void runCommands() {
-        RoleAddListener.runCommands(mcdb, roleNames, addCommands, addedRole);
     }
 
 }
