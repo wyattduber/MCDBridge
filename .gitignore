@@ -1,8 +1,3 @@
 /target/
-src/com/Wcash/commands/AllCommands.java
-src/com/Wcash/commands/AllCommands.java
-src/com/Wcash/DailyReward.java
-src/com/Wcash/DiscordListener.java
-src/com/Wcash/LinkingWIP/DiscordLinkListener.java
-src/com/Wcash/LinkingWIP/Link.java
-src/com/Wcash/LogoutListener.java
+/.idea/
+/MCDBridge.iml
