@@ -3,7 +3,7 @@ package com.Wcash;
 import com.Wcash.commands.MCDBCommand;
 import com.Wcash.database.Database;
 import com.Wcash.listeners.LoginListener;
-import net.byteflux.libby.BukkitLibraryManager;
+//import net.byteflux.libby.BukkitLibraryManager;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.event.player.PlayerLoginEvent;
@@ -12,8 +12,9 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.*;
-import java.util.Arrays;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.logging.Level;
 
 public class MCDBridge extends JavaPlugin {
@@ -46,12 +47,21 @@ public class MCDBridge extends JavaPlugin {
         //loadDependencies();
 
         /* Load and Initiate Configs */
-        reloadCustomConfig();
-        config = getCustomConfig();
-        saveCustomConfig();
+        try {
+            reloadCustomConfig();
+            config = getCustomConfig();
+            saveCustomConfig();
+        } catch (Exception e) {
+            exception("Error setting up the config! Contact the developer if you cannot fix this issue", e);
+        }
 
         /* Load the Database */
-        db = new Database("mcdb.sqlite.db");
+        try {
+            db = new Database("mcdb.sqlite.db");
+            log("Database Found! Path is " + db.getDbPath());
+        } catch (Exception e) {
+            exception("Error setting up database! Contact the developer if you cannot fix this issue", e);
+        }
 
         /* Config Parsing */
         parseConfig();
@@ -65,7 +75,11 @@ public class MCDBridge extends JavaPlugin {
         permissionsPlugin = getPermissionsPlugin(pluginManager);
 
         /* Commands */
-        this.getCommand("mcdb").setExecutor(new MCDBCommand());
+        try {
+            Objects.requireNonNull(this.getCommand("mcdb")).setExecutor(new MCDBCommand());
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+        }
 
     }
 
@@ -74,7 +88,7 @@ public class MCDBridge extends JavaPlugin {
         js.disableAPI();
     }
 
-    public void loadDependencies() {
+    /*public void loadDependencies() {
         BukkitLibraryManager manager = new BukkitLibraryManager(this); //depends on the server core you are using
         manager.addMavenCentral(); //there are also methods for other repositories
         manager.fromGeneratedResource(this.getResource("AzimDP.json")).forEach(library->{
@@ -84,20 +98,20 @@ public class MCDBridge extends JavaPlugin {
                 getLogger().info("Skipping download of\""+library+"\", it either doesnt exist or has no .jar file");
             }
         });
-    }
+    }*/
 
     public void reload() {
         reloadCustomConfig();
         config = getCustomConfig();
         saveCustomConfig();
 
-        js.reload();
-
         PlayerLoginEvent.getHandlerList().unregister(loginListener);
         loginListener = null;
 
         parseConfig();
         initListeners();
+
+        js.reload();
     }
 
     public void initListeners() {
@@ -118,17 +132,32 @@ public class MCDBridge extends JavaPlugin {
     }
 
     public void parseConfig() {
-        if (!getConfigEntry("bot-token").equalsIgnoreCase("BOTTOKEN")) {
+        try {
             botToken = getConfigEntry("bot-token");
-        } else {
-            System.out.println("§f[§9MCDBridge§f] Please enter a Bot Token in config.yml!");
+        } catch (Exception e) {
+            warn("Invalid Bot Token! Please enter a valid bot token in config.yml and reload the plugin.");
         }
-        if (!getConfigEntry("server-id").equalsIgnoreCase("000000000000000000")) {
+
+        try {
             serverID = getConfigEntry("server-id");
+        } catch (Exception e) {
+            warn("Invalid Server ID! Please enter a valid Server ID in config.yml and reload the plugin.");
         }
+
     }
 
     public Plugin getPermissionsPlugin(PluginManager pluginManager) {
+
+        try {
+            permissionsPlugin = pluginManager.getPlugin("PermissionsEx");
+            if (config.getBoolean("Groups")) {
+                log("PermissionsEx Detected! Hooking with PermissionsEx");
+                usePex = true;
+            }
+        } catch (Exception ignored) {
+
+        }
+
         if (pluginManager.getPlugin("PermissionsEx") != null) {
             permissionsPlugin = pluginManager.getPlugin("PermissionsEx");
         } else if (pluginManager.getPlugin("LuckPerms") != null) {
@@ -159,7 +188,7 @@ public class MCDBridge extends JavaPlugin {
             tempRemove = config.getStringList(roleName + ".remove-commands").toArray(tempRemove);
             removeCommands.put(roleName, tempRemove);
 
-            roleAndID.put(roleName, config.getConfigurationSection(roleName).getString("role-id"));
+            roleAndID.put(roleName, Objects.requireNonNull(config.getConfigurationSection(roleName)).getString("role-id"));
         }
     }
 
@@ -178,7 +207,7 @@ public class MCDBridge extends JavaPlugin {
         // Look for defaults in the jar
         Reader defConfigStream = null;
         try {
-            defConfigStream = new InputStreamReader(this.getResource("config.yml"), "UTF8");
+            defConfigStream = new InputStreamReader(Objects.requireNonNull(this.getResource("config.yml")), StandardCharsets.UTF_8);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -215,4 +244,17 @@ public class MCDBridge extends JavaPlugin {
             this.saveResource("config.yml", false);
         }
     }
+
+    public void log(String message) {
+        this.getLogger().log(Level.INFO, message);
+    }
+
+    public void warn(String message) {
+        this.getLogger().log(Level.WARNING, message);
+    }
+
+    public void exception(String message, Exception e) {
+        this.getLogger().log(Level.SEVERE, message, e);
+    }
+
 }

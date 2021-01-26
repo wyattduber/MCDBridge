@@ -58,16 +58,27 @@ public class JavacordStart {
             return;
         }
 
-        api = new DiscordApiBuilder().setToken(mcdb.botToken).setAllIntents().login().join();
-
-        if (api.getServerById(mcdb.serverID).isPresent()) {
-            discordServer = api.getServerById(mcdb.serverID).get();
+        try {
+            api = new DiscordApiBuilder().setToken(mcdb.botToken).setAllIntents().login().join();
+        } catch (Exception e) {
+            mcdb.warn("Could not connect to API! Please enter a valid Bot Token in config.yml and reload the plugin.");
+            mcdb.warn("If the bot-token is valid, please file an issue on our GitHub.");
         }
 
-        for (int i = 0; i < roleNames.length; i++) {
-            if (api.getRoleById(roleAndID.get(roleNames[i])).isPresent()) {
-                roles[i] = api.getRoleById(roleAndID.get(roleNames[i])).get();
+        try {
+            if (api.getServerById(mcdb.serverID).isPresent())
+            discordServer = api.getServerById(mcdb.serverID).get();
+        } catch (Exception e) {
+            mcdb.warn("Server not Found! Please enter a valid Server ID in config.yml and reload the plugin.");
+        }
+
+        try {
+            for (int i = 0; i < roleNames.length; i++) {
+                if (api.getRoleById(roleAndID.get(roleNames[i])).isPresent())
+                    roles[i] = api.getRoleById(roleAndID.get(roleNames[i])).get();
             }
+        } catch (Exception e) {
+            mcdb.warn("Invalid Role List! Please enter valid Role ID's in the config.yml and reload the plugin.");
         }
 
     }

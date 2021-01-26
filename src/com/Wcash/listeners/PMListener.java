@@ -6,10 +6,12 @@ import org.bukkit.entity.Player;
 import org.javacord.api.entity.channel.TextChannel;
 import org.javacord.api.entity.message.MessageBuilder;
 import org.javacord.api.entity.permission.Role;
+import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.listener.message.MessageCreateListener;
 
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.Random;
 
 public class PMListener implements MessageCreateListener {
@@ -24,9 +26,10 @@ public class PMListener implements MessageCreateListener {
     private final Role addedRole;
     private final HashMap<String, String[]> addCommands;
     private final TextChannel channel;
+    private boolean resent = false;
+    private User messageUser;
 
-
-    public PMListener(Role addedRole, TextChannel channel) {
+    public PMListener(Role addedRole, TextChannel channel, User messageUser) {
         mcdb = MCDBridge.getPlugin();
         server = mcdb.getServer();
         db = MCDBridge.getDatabase();
@@ -34,6 +37,7 @@ public class PMListener implements MessageCreateListener {
         addCommands = mcdb.addCommands;
         this.channel = channel;
         this.addedRole = addedRole;
+        this.messageUser = messageUser;
     }
 
     @Override
@@ -42,23 +46,17 @@ public class PMListener implements MessageCreateListener {
         if (event.getChannel() != channel) {
             return;
         }
-
-        if (step == 3 && event.getMessageContent().equalsIgnoreCase("resend")) {
-            step = 2;
-        }
-        if (event.getMessageContent().equalsIgnoreCase("cancel")) {
-            step = 0;
-        }
-        if (step == 4) {
-            RoleAddListener.removeListener(this);
-            return;
-        }
-
-        if (step == 0) {
+        if (event.getMessageContent().equalsIgnoreCase("resend")) resent = true;
+        if (event.getMessageAuthor() != messageUser) return;
+        if (event.getMessageContent().equalsIgnoreCase("cancel"))  {
             event.getChannel().sendMessage("Operation Canceled. Contact an admin if this was done in error.");
-        } else if (step == 1) {
+            RoleAddListener.removeListener(this);
+        }
+
+        if (step == 1) {
             if (event.getMessageContent().equalsIgnoreCase("no")) {
                 event.getChannel().sendMessage("Alright, thanks for supporting us!");
+                RoleAddListener.removeListener(this);
             } else if (event.getMessageContent().equalsIgnoreCase("yes")) {
                 new MessageBuilder()
                         .append("__**Please follow these next steps exactly:**__")
@@ -74,10 +72,10 @@ public class PMListener implements MessageCreateListener {
             }
         } else if (step == 2) {
             try {
-                if (server.getPlayer(event.getMessageContent()).isOnline()) {
+                if (Objects.requireNonNull(server.getPlayer(event.getMessageContent())).isOnline()) {
                     player = server.getPlayer(event.getMessageContent());
                     randInt = Integer.parseInt(getRandomNumber());
-                    server.getPlayer(event.getMessageContent()).sendMessage("§f[§9MCDBridge§f] Your code is: §c" + randInt);
+                    Objects.requireNonNull(server.getPlayer(event.getMessageContent())).sendMessage("§f[§9MCDBridge§f] Your code is: §c" + randInt);
                     event.getChannel().sendMessage("Please enter the code sent to you on the server.");
                     step = 3;
                 } else {
@@ -88,19 +86,19 @@ public class PMListener implements MessageCreateListener {
             }
         } else if (step == 3) {
             try {
-                if (event.getMessageContent().equals(String.format("%06d", randInt))) {
-                    if (!db.doesEntryExist(player.getUniqueId())) {
-                        db.insertLink(event.getMessageAuthor().getId(), player.getName(), player.getUniqueId());
-                        RoleAddListener.runCommands(mcdb, roleNames, addCommands, addedRole);
-                        event.getChannel().sendMessage("Rewards Given! Message one of the online administrators if this process had any errors or you still haven't received your rewards.");
-                        player.sendMessage("§f[§9MCDBridge§f] Rewards Received!");
-                        step = 4;
-                        RoleAddListener.removeListener(this);
-                    } else {
-                        event.getChannel().sendMessage("Rewards Already Given!");
-                    }
-                } else {
-                    event.getChannel().sendMessage("Code does not match! Make sure you've entered the right code. Say \"resend\" if you need the code again.");
+                if (event.getMessageContent().equals(String.format("%06d", randInt)) && !resent) {
+                    db.insertLink(event.getMessageAuthor().getId(), player.getName(), player.getUniqueId());
+                    RoleAddListener.runCommands(mcdb, roleNames, addCommands, addedRole);
+                    event.getChannel().sendMessage("Rewards Given! Message one of the online administrators if this process had any errors or you still haven't received your rewards.");
+                    player.sendMessage("§f[§9MCDBridge§f] Rewards Received!");
+                    step = 4;
+                    RoleAddListener.removeListener(this);
+                } else if (resent && event.getMessageContent().equalsIgnoreCase("resend")) {
+                    randInt = Integer.parseInt(getRandomNumber());
+                    player.sendMessage("§f[§9MCDBridge§f] Your code is: §c" + randInt);
+                    event.getChannel().sendMessage("New Code Sent.");
+                } else if (!resent && !event.getMessageContent().equals(String.format("%06d", randInt))) {
+                    event.getChannel().sendMessage("Code does not match! Make sure you've entered the right code. Say \"resend\" if you need a new code.");
                 }
             } catch (Exception e) {
                 e.printStackTrace();

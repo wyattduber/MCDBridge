@@ -14,6 +14,7 @@ import org.javacord.api.listener.server.role.UserRoleAddListener;
 import org.javacord.api.util.logging.ExceptionLogger;
 
 import java.util.HashMap;
+import java.util.concurrent.ExecutionException;
 
 public class RoleAddListener implements UserRoleAddListener {
 
@@ -30,6 +31,7 @@ public class RoleAddListener implements UserRoleAddListener {
     private TextChannel pmChannel;
     private DiscordApi api;
     private static User user;
+    private int i = 0;
 
 
     public RoleAddListener(Role[] roles, DiscordApi api) {
@@ -59,16 +61,27 @@ public class RoleAddListener implements UserRoleAddListener {
         }
 
         if (db.doesEntryExist(roleEvent.getUser().getId())) {
-            System.out.println("§f[§9MCDBridge§f] User Already Exists!");
+            mcdb.warn("User already exists within database!");
         }
 
+        System.out.println(i + " 1");
         user = roleEvent.getUser();
-        user.sendMessage("You were added to a role with Minecraft Rewards! Do you have a Minecraft account? Answer using either \"yes\" or \"no\".")
-                .thenAccept(msg -> {
-                    pmChannel = msg.getChannel();
-                }).exceptionally(ExceptionLogger.get());
-        user.addUserAttachableListener(new PMListener(addedRole, pmChannel));
-
+        if (i == 0) {
+            try {
+                user.sendMessage("You were added to a role with Minecraft Rewards! Do you have a Minecraft account? Answer using either \"yes\" or \"no\".")
+                        .thenAccept(msg -> {
+                            pmChannel = msg.getChannel();
+                            System.out.println(i + " 2");
+                        }).join();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            user.addUserAttachableListener(new PMListener(addedRole, pmChannel, user));
+            System.out.println(i + " 3");
+            i++;
+            System.out.println(i + " 4");
+        }
+        System.out.println(i + " 5");
     }
 
     public static void removeListener(PMListener listener) {
