@@ -48,7 +48,7 @@ public class JavacordStart {
     }
 
     private void initListeners() {
-        roleAddListener = new RoleAddListener(roles, api);
+        roleAddListener = new RoleAddListener(roles);
         roleRemoveListener = new RoleRemoveListener(roles);
         api.addListener(roleAddListener);
         api.addListener(roleRemoveListener);

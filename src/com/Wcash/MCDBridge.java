@@ -52,7 +52,7 @@ public class MCDBridge extends JavaPlugin {
             config = getCustomConfig();
             saveCustomConfig();
         } catch (Exception e) {
-            exception("Error setting up the config! Contact the developer if you cannot fix this issue", e);
+            error("Error setting up the config! Contact the developer if you cannot fix this issue");
         }
 
         /* Load the Database */
@@ -60,15 +60,17 @@ public class MCDBridge extends JavaPlugin {
             db = new Database("mcdb.sqlite.db");
             log("Database Found! Path is " + db.getDbPath());
         } catch (Exception e) {
-            exception("Error setting up database! Contact the developer if you cannot fix this issue", e);
+            error("Error setting up database! Contact the developer if you cannot fix this issue");
         }
 
         /* Config Parsing */
-        parseConfig();
-        parseRoles();
-        js = new JavacordStart(roleNames);
-
-        initListeners();
+        if (parseConfig()) {
+            parseRoles();
+            js = new JavacordStart(roleNames);
+            initListeners();
+        } else {
+            error("Config Not Properly Configured! Plugin will not function!");
+        }
 
         /* Get the Plugin manager for finding other permissions plugins */
         pluginManager = getServer().getPluginManager();
@@ -85,7 +87,9 @@ public class MCDBridge extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        js.disableAPI();
+        if (js != null) {
+            js.disableAPI();
+        }
     }
 
     /*public void loadDependencies() {
@@ -108,10 +112,17 @@ public class MCDBridge extends JavaPlugin {
         PlayerLoginEvent.getHandlerList().unregister(loginListener);
         loginListener = null;
 
-        parseConfig();
-        initListeners();
+        if (parseConfig()) {
+            parseRoles();
+            initListeners();
+        } else {
+            error("Config Not Properly Configured! Plugin will not function!");
+        }
 
-        js.reload();
+        if (parseConfig() && js == null) {
+            js = new JavacordStart(roleNames);
+        }
+
     }
 
     public void initListeners() {
@@ -131,19 +142,23 @@ public class MCDBridge extends JavaPlugin {
         getServer().getPluginManager().registerEvents(loginListener, this);
     }
 
-    public void parseConfig() {
+    public boolean parseConfig() {
         try {
             botToken = getConfigEntry("bot-token");
+            if (getConfigEntry("bot-token").equalsIgnoreCase("BOTTOKEN") || getConfigEntry("bot-token").equalsIgnoreCase("")) throw new Exception();
         } catch (Exception e) {
             warn("Invalid Bot Token! Please enter a valid bot token in config.yml and reload the plugin.");
+            return false;
         }
 
         try {
             serverID = getConfigEntry("server-id");
+            if (getConfigEntry("server-id").equalsIgnoreCase("000000000000000000") || getConfigEntry("server-id").equalsIgnoreCase("")) throw new Exception();
         } catch (Exception e) {
             warn("Invalid Server ID! Please enter a valid Server ID in config.yml and reload the plugin.");
+            return false;
         }
-
+        return true;
     }
 
     public Plugin getPermissionsPlugin(PluginManager pluginManager) {
@@ -166,7 +181,7 @@ public class MCDBridge extends JavaPlugin {
 
         if (permissionsPlugin != null) {
             if (permissionsPlugin.isEnabled() && permissionsPlugin.getName().equals("PermissionsEx") && config.getBoolean("Groups")) {
-                System.out.println("§f[§9MCDBridge§f] PermissionsEx Detected! Hooking permissions with PermissionsEx!");
+                log("§f[§9MCDBridge§f] PermissionsEx Detected! Hooking permissions with PermissionsEx!");
                 usePex = true;
             }
         }
@@ -253,8 +268,8 @@ public class MCDBridge extends JavaPlugin {
         this.getLogger().log(Level.WARNING, message);
     }
 
-    public void exception(String message, Exception e) {
-        this.getLogger().log(Level.SEVERE, message, e);
+    public void error(String message) {
+        this.getLogger().log(Level.SEVERE, message);
     }
 
 }

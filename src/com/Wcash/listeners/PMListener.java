@@ -6,7 +6,6 @@ import org.bukkit.entity.Player;
 import org.javacord.api.entity.channel.TextChannel;
 import org.javacord.api.entity.message.MessageBuilder;
 import org.javacord.api.entity.permission.Role;
-import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.listener.message.MessageCreateListener;
 
@@ -27,9 +26,8 @@ public class PMListener implements MessageCreateListener {
     private final HashMap<String, String[]> addCommands;
     private final TextChannel channel;
     private boolean resent = false;
-    private User messageUser;
 
-    public PMListener(Role addedRole, TextChannel channel, User messageUser) {
+    public PMListener(Role addedRole, TextChannel channel) {
         mcdb = MCDBridge.getPlugin();
         server = mcdb.getServer();
         db = MCDBridge.getDatabase();
@@ -37,28 +35,21 @@ public class PMListener implements MessageCreateListener {
         addCommands = mcdb.addCommands;
         this.channel = channel;
         this.addedRole = addedRole;
-        this.messageUser = messageUser;
         step = 1;
     }
 
     @Override
     public void onMessageCreate(MessageCreateEvent event) {
 
-        System.out.println("A");
         if (event.getChannel() != channel) {
             return;
         }
-        System.out.println("B");
         if (event.getMessageContent().equalsIgnoreCase("resend")) resent = true;
-        System.out.println("C");
-        //if (event.getMessageAuthor() != messageUser) return;
-        System.out.println("D");
         if (event.getMessageContent().equalsIgnoreCase("cancel"))  {
             event.getChannel().sendMessage("Operation Canceled. Contact an admin if this was done in error.");
             RoleAddListener.removeListener(this);
             step = 0;
         }
-        System.out.println("E");
         if (step == 1) {
             if (event.getMessageContent().equalsIgnoreCase("no")) {
                 event.getChannel().sendMessage("Alright, thanks for supporting us!");
