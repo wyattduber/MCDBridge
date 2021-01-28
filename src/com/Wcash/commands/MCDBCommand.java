@@ -4,6 +4,7 @@ import com.Wcash.MCDBridge;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 
 public class MCDBCommand implements CommandExecutor {
@@ -24,6 +25,15 @@ public class MCDBCommand implements CommandExecutor {
                     return true;
                 } else {
                     player.sendMessage("§f[§9MCDBridge§f]§c Command not Found!");
+                }
+            }
+        } else if (sender instanceof ConsoleCommandSender) {
+            if (args.length == 1) {
+                if (args[0].equals("reload")){
+                    mcdb.reload();
+                    return true;
+                } else {
+                    sender.sendMessage("§f[§9MCDBridge§f]§c Command not Found!");
                 }
             }
         }

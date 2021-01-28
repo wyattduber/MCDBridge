@@ -15,6 +15,7 @@ public class RoleRemoveListener implements UserRoleRemoveListener {
     private final String[] roleNames;
     private final Role[] roles;
     private final HashMap<String, String[]> removeCommands;
+    private String username;
 
     public RoleRemoveListener(Role[] roles) {
         roleNames = mcdb.roleNames;
@@ -26,6 +27,8 @@ public class RoleRemoveListener implements UserRoleRemoveListener {
     public void onUserRoleRemove(UserRoleRemoveEvent roleEvent) {
 
         int rolesChanged = 0;
+
+        username = db.getUsername(roleEvent.getUser().getId());
 
         for (Role role : roles) {
             if (roleEvent.getRole() != role) {
@@ -45,7 +48,7 @@ public class RoleRemoveListener implements UserRoleRemoveListener {
     }
 
     private void runCommands(Role role) {
-        RoleAddListener.runCommands(mcdb, roleNames, removeCommands, role);
+        RoleAddListener.runCommands(mcdb, roleNames, removeCommands, role, username);
     }
 
 }

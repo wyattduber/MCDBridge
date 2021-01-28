@@ -19,13 +19,14 @@ public class JavacordStart {
     private final String[] roleNames;
     public Role[] roles;
     private final HashMap<String, String> roleAndID;
+    private boolean doListeners = false;
 
     public JavacordStart(String[] roleNames) {
         this.roleNames = roleNames;
         roles = new Role[roleNames.length];
         roleAndID = mcdb.roleAndID;
         parseConfig();
-        initListeners();
+        if (doListeners) initListeners();
     }
 
     public void disableAPI() {
@@ -43,7 +44,7 @@ public class JavacordStart {
 
         disableAPI();
         parseConfig();
-        initListeners();
+        if (doListeners) initListeners();
     }
 
     private void initListeners() {
@@ -60,6 +61,7 @@ public class JavacordStart {
 
         try {
             api = new DiscordApiBuilder().setToken(mcdb.botToken).setAllIntents().login().join();
+            doListeners = true;
         } catch (Exception e) {
             mcdb.warn("Could not connect to API! Please enter a valid Bot Token in config.yml and reload the plugin.");
             mcdb.warn("If the bot-token is valid, please file an issue on our GitHub.");

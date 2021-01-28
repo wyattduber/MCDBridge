@@ -31,7 +31,7 @@ public class RoleAddListener implements UserRoleAddListener {
     private TextChannel pmChannel;
     private DiscordApi api;
     private static User user;
-    private int i = 0;
+    public static int i;
 
 
     public RoleAddListener(Role[] roles, DiscordApi api) {
@@ -42,6 +42,7 @@ public class RoleAddListener implements UserRoleAddListener {
         this.roles = roles;
         addCommands = mcdb.addCommands;
         this.api = api;
+        i = 0;
     }
 
     @Override
@@ -71,6 +72,7 @@ public class RoleAddListener implements UserRoleAddListener {
                 user.sendMessage("You were added to a role with Minecraft Rewards! Do you have a Minecraft account? Answer using either \"yes\" or \"no\".")
                         .thenAccept(msg -> {
                             pmChannel = msg.getChannel();
+                            System.out.println(pmChannel.getId());
                             System.out.println(i + " 2");
                         }).join();
             } catch (Exception e) {
@@ -86,9 +88,10 @@ public class RoleAddListener implements UserRoleAddListener {
 
     public static void removeListener(PMListener listener) {
         user.removeUserAttachableListener(listener);
+        i = 0;
     }
 
-    public static void runCommands(MCDBridge mcdb, String[] roleNames, HashMap<String, String[]> commands, Role role) {
+    public static void runCommands(MCDBridge mcdb, String[] roleNames, HashMap<String, String[]> commands, Role role, String username) {
         ConsoleCommandSender console = mcdb.getServer().getConsoleSender();
 
         String roleName = "";
@@ -102,8 +105,14 @@ public class RoleAddListener implements UserRoleAddListener {
         String[] cmds = commands.get(roleName);
 
         for (String cmdSend : cmds) {
+
+            if (cmdSend.contains("%USER%")) {
+                cmdSend = cmdSend.replace("%USER%", username);
+            }
+
             try {
-                Bukkit.getScheduler().callSyncMethod(mcdb, () -> Bukkit.dispatchCommand(console, cmdSend)).get();
+                String finalCmdSend = cmdSend;
+                Bukkit.getScheduler().callSyncMethod(mcdb, () -> Bukkit.dispatchCommand(console, finalCmdSend)).get();
             } catch (Exception e) {
                 e.printStackTrace();
             }

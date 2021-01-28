@@ -20,7 +20,7 @@ public class PMListener implements MessageCreateListener {
     private final org.bukkit.Server server;
     private final Database db;
     private int randInt;
-    private int step = 1;
+    private int step;
     private Player player;
     private final String[] roleNames;
     private final Role addedRole;
@@ -38,21 +38,27 @@ public class PMListener implements MessageCreateListener {
         this.channel = channel;
         this.addedRole = addedRole;
         this.messageUser = messageUser;
+        step = 1;
     }
 
     @Override
     public void onMessageCreate(MessageCreateEvent event) {
 
+        System.out.println("A");
         if (event.getChannel() != channel) {
             return;
         }
+        System.out.println("B");
         if (event.getMessageContent().equalsIgnoreCase("resend")) resent = true;
-        if (event.getMessageAuthor() != messageUser) return;
+        System.out.println("C");
+        //if (event.getMessageAuthor() != messageUser) return;
+        System.out.println("D");
         if (event.getMessageContent().equalsIgnoreCase("cancel"))  {
             event.getChannel().sendMessage("Operation Canceled. Contact an admin if this was done in error.");
             RoleAddListener.removeListener(this);
+            step = 0;
         }
-
+        System.out.println("E");
         if (step == 1) {
             if (event.getMessageContent().equalsIgnoreCase("no")) {
                 event.getChannel().sendMessage("Alright, thanks for supporting us!");
@@ -72,23 +78,29 @@ public class PMListener implements MessageCreateListener {
             }
         } else if (step == 2) {
             try {
-                if (Objects.requireNonNull(server.getPlayer(event.getMessageContent())).isOnline()) {
-                    player = server.getPlayer(event.getMessageContent());
-                    randInt = Integer.parseInt(getRandomNumber());
-                    Objects.requireNonNull(server.getPlayer(event.getMessageContent())).sendMessage("§f[§9MCDBridge§f] Your code is: §c" + randInt);
-                    event.getChannel().sendMessage("Please enter the code sent to you on the server.");
-                    step = 3;
+                if (!resent) {
+                    if (Objects.requireNonNull(server.getPlayer(event.getMessageContent())).isOnline()) {
+                        player = server.getPlayer(event.getMessageContent());
+                        randInt = Integer.parseInt(getRandomNumber());
+                        Objects.requireNonNull(server.getPlayer(event.getMessageContent())).sendMessage("§f[§9MCDBridge§f] Your code is: §c" + randInt);
+                        event.getChannel().sendMessage("Please enter the code sent to you on the server. Say \"resend\" if you need a new code.");
+                        step = 3;
+                    } else {
+                        event.getChannel().sendMessage("Player Not Online! Make sure you are logged into the server!");
+                    }
                 } else {
-                    event.getChannel().sendMessage("Player Not Online! Make sure you are logged into the server!");
+                    step = 3;
+                    resent = false;
                 }
             } catch (NullPointerException e) {
+                e.printStackTrace();
                 event.getChannel().sendMessage("Player Not Found! Make sure that you are logged into the server and that your username was typed in correctly Usernames are Case-Sensitive!");
             }
         } else if (step == 3) {
             try {
                 if (event.getMessageContent().equals(String.format("%06d", randInt)) && !resent) {
                     db.insertLink(event.getMessageAuthor().getId(), player.getName(), player.getUniqueId());
-                    RoleAddListener.runCommands(mcdb, roleNames, addCommands, addedRole);
+                    RoleAddListener.runCommands(mcdb, roleNames, addCommands, addedRole, player.getName());
                     event.getChannel().sendMessage("Rewards Given! Message one of the online administrators if this process had any errors or you still haven't received your rewards.");
                     player.sendMessage("§f[§9MCDBridge§f] Rewards Received!");
                     step = 4;
@@ -97,6 +109,7 @@ public class PMListener implements MessageCreateListener {
                     randInt = Integer.parseInt(getRandomNumber());
                     player.sendMessage("§f[§9MCDBridge§f] Your code is: §c" + randInt);
                     event.getChannel().sendMessage("New Code Sent.");
+                    step = 2;
                 } else if (!resent && !event.getMessageContent().equals(String.format("%06d", randInt))) {
                     event.getChannel().sendMessage("Code does not match! Make sure you've entered the right code. Say \"resend\" if you need a new code.");
                 }
