@@ -12,10 +12,13 @@ public final class LoginListener implements Listener {
     private final boolean updateRequired;
     private final String[] versions;
     private final Database db = MCDBridge.getDatabase();
+    private final MCDBridge mcdb;
 
     public LoginListener(boolean updateRequired, String[] versions) {
         this.updateRequired = updateRequired;
         this.versions = versions;
+        mcdb = MCDBridge.getPlugin();
+
     }
 
     @EventHandler
@@ -26,8 +29,8 @@ public final class LoginListener implements Listener {
         event.getPlayer().sendMessage(String.valueOf(event.getPlayer().isOp()));
         /* Check for Updates and send message to player with permission to see updates */
         if (updateRequired && (event.getPlayer().hasPermission("mcdb.update") || event.getPlayer().isOp())) {
-            event.getPlayer().sendMessage("[§9MCDBridge§f] Version §c" + versions[0] + " §favailable! You have §c" + versions[1] + "§f. Click here to download.");
-            System.out.println("[§9MCDBridge§f] Version §c" + versions[0] + " §favailable! You have §c" + versions[1] + "§f. Click here to download.");
+            event.getPlayer().sendMessage("[§9MCDBridge§f] Version §c" + versions[0] + " §favailable! You have §c" + versions[1] + ".");
+            mcdb.log("Version " + versions[0] + " available! You have " + versions[1] + ".");
         }
 
         /* Check if Username has changed since last login */
