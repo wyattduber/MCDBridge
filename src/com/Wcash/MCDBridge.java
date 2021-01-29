@@ -129,7 +129,7 @@ public class MCDBridge extends JavaPlugin {
 
     public void initListeners() {
         try {
-            new UpdateChecker(this, 12345).getVersion(version -> {
+            new UpdateChecker(this, 88409).getVersion(version -> {
                 // Initializes Login Listener when no Updates
                 if (!this.getDescription().getVersion().equalsIgnoreCase(version)) {
                     versions[0] = version;
