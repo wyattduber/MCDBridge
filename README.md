@@ -54,8 +54,13 @@ nitro:
 # Verification: 
 
 1. When the role is added, the user on discord who received the role will be sent a message by the bot you used the token with asking the user if they have a minecraft account they would like to link and receive rewards for. From this point on, the user can type "cancel" to end the process at any of the following steps.
+
 2. If the user responds with "no", the bot will stop asking and nothing else happens. If the user responds with "yes", it will prompt them to  join the Minecraft server, then send their username to the bot. 
+
 3. If the player is not on the server, it will ask them to repeat. If they are, plugin will send them a code on the minecraft server, which they send to the bot.
+
 4. If the code is correct, the plugin will run the role-add commands. 
+
 5. When the role is removed, the plugin will automatically run the role-remove commands. 
+
 6. Done!
