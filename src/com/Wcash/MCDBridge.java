@@ -121,6 +121,8 @@ public class MCDBridge extends JavaPlugin {
 
         if (parseConfig() && js == null) {
             js = new JavacordStart(roleNames);
+        } else {
+            js.reload();
         }
 
     }
