@@ -2,13 +2,12 @@ package com.Wcash.listeners;
 
 import com.Wcash.MCDBridge;
 import com.Wcash.database.Database;
-import org.bukkit.Color;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 
-public class LoginListener implements Listener {
+public final class LoginListener implements Listener {
 
     private final boolean updateRequired;
     private final String[] versions;
@@ -19,12 +18,16 @@ public class LoginListener implements Listener {
         this.versions = versions;
     }
 
-    @EventHandler(priority = EventPriority.MONITOR)
-    public void onLogin(PlayerLoginEvent event) {
+    @EventHandler
+    public void onLogin(PlayerJoinEvent event) {
 
+        event.getPlayer().sendMessage(String.valueOf(updateRequired));
+        event.getPlayer().sendMessage(String.valueOf(event.getPlayer().hasPermission("mcdb.update")));
+        event.getPlayer().sendMessage(String.valueOf(event.getPlayer().isOp()));
         /* Check for Updates and send message to player with permission to see updates */
-        if (updateRequired && (event.getPlayer().hasPermission("patreoncraft.update") || event.getPlayer().isOp())) {
-            event.getPlayer().sendMessage("§f[" + Color.fromRGB(255, 128, 0)+ "PatreonCraft§f] Version §c" + versions[0] + " §favailable! You have §c" + versions[1] + "§f. Click here to download.");
+        if (updateRequired && (event.getPlayer().hasPermission("mcdb.update") || event.getPlayer().isOp())) {
+            event.getPlayer().sendMessage("[§9MCDBridge§f] Version §c" + versions[0] + " §favailable! You have §c" + versions[1] + "§f. Click here to download.");
+            System.out.println("[§9MCDBridge§f] Version §c" + versions[0] + " §favailable! You have §c" + versions[1] + "§f. Click here to download.");
         }
 
         /* Check if Username has changed since last login */

@@ -24,9 +24,8 @@ public class MCDBridge extends JavaPlugin {
     public Plugin permissionsPlugin = null;
     public PluginManager pluginManager;
     private static Database db;
-    public static String[] versions;
+    public static String[] versions = new String[2];
     public boolean updateRequired = false;
-    private LoginListener loginListener;
     public boolean usePex = false;
     public String botToken;
     public String serverID;
@@ -109,8 +108,7 @@ public class MCDBridge extends JavaPlugin {
         config = getCustomConfig();
         saveCustomConfig();
 
-        PlayerLoginEvent.getHandlerList().unregister(loginListener);
-        loginListener = null;
+        PlayerLoginEvent.getHandlerList().unregister(this);
 
         if (parseConfig()) {
             parseRoles();
@@ -134,14 +132,14 @@ public class MCDBridge extends JavaPlugin {
                 if (!this.getDescription().getVersion().equalsIgnoreCase(version)) {
                     versions[0] = version;
                     versions[1] = this.getDescription().getVersion();
-                    updateRequired = true;
+                    getServer().getPluginManager().registerEvents(new LoginListener(true, versions), this);
+                } else {
+                    getServer().getPluginManager().registerEvents(new LoginListener(false, versions), this);
                 }
             });
         } catch (Exception e) {
             e.printStackTrace();
         }
-        loginListener = new LoginListener(updateRequired, versions);
-        getServer().getPluginManager().registerEvents(loginListener, this);
     }
 
     public boolean parseConfig() {

@@ -1,5 +1,5 @@
 name: MCDBridge
-version: 1.0.0
+version: 1.0.1
 author: Wcash
 main: com.Wcash.MCDBridge
 api-version: 1.16
@@ -13,6 +13,14 @@ commands:
     permission-message: §f[§9MCDBridge§f]§c You don't have permission to use this command!
 
 permissions:
+  mcdb.*:
+    description: Gives access to all MCDBridge commands
+    children:
+      mcdb.reload: true
+      mcdb.update: true
   mcdb.reload:
     description: Allows to reload the plugin and config files
+    default: op
+  mcdb.update:
+    description: Allows a user to see if the plugin has updates on login
     default: op
