@@ -5,7 +5,6 @@ import com.Wcash.database.Database;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerLoginEvent;
 
 public final class LoginListener implements Listener {
 
