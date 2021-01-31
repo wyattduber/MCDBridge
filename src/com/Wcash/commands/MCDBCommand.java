@@ -1,5 +1,6 @@
 package com.Wcash.commands;
 
+import com.Wcash.JavacordStart;
 import com.Wcash.MCDBridge;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -10,9 +11,10 @@ import org.bukkit.entity.Player;
 public class MCDBCommand implements CommandExecutor {
 
     private final MCDBridge mcdb = MCDBridge.getPlugin();
+    private final JavacordStart js;
 
     public MCDBCommand() {
-
+        js = mcdb.js;
     }
 
     @Override
@@ -20,9 +22,11 @@ public class MCDBCommand implements CommandExecutor {
         if (sender instanceof Player) {
             Player player = (Player) sender;
             if (args.length == 1) {
-                if (args[0].equals("reload")){
+                if (args[0].equalsIgnoreCase("reload")){
                     mcdb.reload();
                     return true;
+                } else if (args[0].equalsIgnoreCase("retrolink")) {
+                    js.retroLink();
                 } else {
                     player.sendMessage("§f[§9MCDBridge§f]§c Command not Found!");
                 }
@@ -33,7 +37,7 @@ public class MCDBCommand implements CommandExecutor {
                     mcdb.reload();
                     return true;
                 } else {
-                    sender.sendMessage("§f[§9MCDBridge§f]§c Command not Found!");
+                    mcdb.warn("Command Not Found!");
                 }
             }
         }

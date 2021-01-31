@@ -85,4 +85,8 @@ public class JavacordStart {
 
     }
 
+    private void retroLink() {
+
+    }
+
 }
