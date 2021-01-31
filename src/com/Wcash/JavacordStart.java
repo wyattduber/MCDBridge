@@ -1,11 +1,15 @@
 package com.Wcash;
 
+import com.Wcash.listeners.PMListener;
 import com.Wcash.listeners.RoleAddListener;
 import com.Wcash.listeners.RoleRemoveListener;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.DiscordApiBuilder;
+import org.javacord.api.entity.channel.TextChannel;
+import org.javacord.api.entity.message.MessageBuilder;
 import org.javacord.api.entity.permission.Role;
 import org.javacord.api.entity.server.Server;
+import org.javacord.api.entity.user.User;
 
 import java.util.HashMap;
 
@@ -20,6 +24,7 @@ public class JavacordStart {
     public Role[] roles;
     private final HashMap<String, String> roleAndID;
     private boolean doListeners = false;
+    private TextChannel pmChannel;
 
     public JavacordStart(String[] roleNames) {
         this.roleNames = roleNames;
@@ -85,8 +90,25 @@ public class JavacordStart {
 
     }
 
-    private void retroLink() {
-
+    public void retroLink() {
+        for (Role role : roles) {
+            User[] usersInRole = new User[role.getUsers().size()];
+            usersInRole = role.getUsers().toArray(usersInRole);
+            for (int j = 0; j < usersInRole.length; j++) {
+                User user = usersInRole[j];
+                try {
+                    new MessageBuilder()
+                            .append("You were added to a role with Minecraft Rewards on the " + api.getServerById(mcdb.serverID).get().getName() + " Discord Server!")
+                            .append("\nDo you have a Minecraft account? Answer using either \"yes\" or \"no\".")
+                            .send(user).thenAccept(msg -> {
+                        pmChannel = msg.getChannel();
+                    }).join();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                user.addUserAttachableListener(new PMListener(role, pmChannel));
+            }
+        }
     }
 
 }

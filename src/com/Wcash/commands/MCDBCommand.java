@@ -33,9 +33,11 @@ public class MCDBCommand implements CommandExecutor {
             }
         } else if (sender instanceof ConsoleCommandSender) {
             if (args.length == 1) {
-                if (args[0].equals("reload")){
+                if (args[0].equalsIgnoreCase("reload")) {
                     mcdb.reload();
                     return true;
+                } else if (args[0].equalsIgnoreCase("retrolink")) {
+                    js.retroLink();
                 } else {
                     mcdb.warn("Command Not Found!");
                 }

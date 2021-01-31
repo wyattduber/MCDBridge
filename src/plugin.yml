@@ -18,9 +18,12 @@ permissions:
     children:
       mcdb.reload: true
       mcdb.update: true
-  mcdb.reload:
+  mcdb.command.reload:
     description: Allows to reload the plugin and config files
     default: op
   mcdb.update:
     description: Allows a user to see if the plugin has updates on login
+    default: op
+  mcdb.command.retrolink:
+    description: Retroactively sends messages to all users within the specified roles asking if they would like to receive the rewards
     default: op

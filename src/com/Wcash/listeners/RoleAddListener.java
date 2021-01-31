@@ -5,6 +5,7 @@ import com.Wcash.database.Database;
 import org.bukkit.Bukkit;
 import org.bukkit.command.ConsoleCommandSender;
 import org.javacord.api.entity.channel.TextChannel;
+import org.javacord.api.entity.message.MessageBuilder;
 import org.javacord.api.entity.permission.Role;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.server.role.UserRoleAddEvent;
@@ -53,10 +54,12 @@ public class RoleAddListener implements UserRoleAddListener {
         user = roleEvent.getUser();
         if (i == 0) {
             try {
-                user.sendMessage("You were added to a role with Minecraft Rewards! Do you have a Minecraft account? Answer using either \"yes\" or \"no\".")
-                        .thenAccept(msg -> {
-                            pmChannel = msg.getChannel();
-                        }).join();
+                new MessageBuilder()
+                        .append("You were added to a role with Minecraft Rewards on the " + roleEvent.getServer().getName() + " Discord Server!")
+                        .append("\nDo you have a Minecraft account? Answer using either \"yes\" or \"no\".")
+                        .send(user).thenAccept(msg -> {
+                    pmChannel = msg.getChannel();
+                }).join();
             } catch (Exception e) {
                 e.printStackTrace();
             }
