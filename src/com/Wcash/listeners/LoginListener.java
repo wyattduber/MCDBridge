@@ -23,9 +23,6 @@ public final class LoginListener implements Listener {
     @EventHandler
     public void onLogin(PlayerJoinEvent event) {
 
-        event.getPlayer().sendMessage(String.valueOf(updateRequired));
-        event.getPlayer().sendMessage(String.valueOf(event.getPlayer().hasPermission("mcdb.update")));
-        event.getPlayer().sendMessage(String.valueOf(event.getPlayer().isOp()));
         /* Check for Updates and send message to player with permission to see updates */
         if (updateRequired && (event.getPlayer().hasPermission("mcdb.update") || event.getPlayer().isOp())) {
             event.getPlayer().sendMessage("[§9MCDBridge§f] Version §c" + versions[0] + " §favailable! You have §c" + versions[1] + ".");

@@ -89,40 +89,6 @@ public class Database {
         }
     }
 
-    /*public boolean checkMC(long discordID) {
-        ResultSet rs;
-        try {
-            dbcon = DriverManager.getConnection(dbPath);
-
-            PreparedStatement stmt = dbcon.prepareStatement("SELECT isPatron from link WHERE discordid=?");
-            stmt.setString(1, Long.toString(discordID));
-
-            rs = stmt.executeQuery();
-            dbcon.close();
-            return rs.getBoolean("isPatron");
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }*/
-
-    /*public void updatePatron(boolean isNowPatron, long discordID) {
-
-        try {
-            dbcon = DriverManager.getConnection(dbPath);
-
-            PreparedStatement stmt = dbcon.prepareStatement("UPDATE link SET isPatron=? WHERE discordid=?");
-            stmt.setBoolean(1, isNowPatron);
-            stmt.setString(2, Long.toString(discordID));
-
-            stmt.execute();
-
-            dbcon.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }*/
-
     public String getUsername(UUID minecraftID) {
         ResultSet rs;
         String username;

@@ -27,7 +27,7 @@ public class JavacordStart {
     private final HashMap<String, String> roleAndID;
     private boolean doListeners = false;
     private TextChannel pmChannel;
-    private Database db;
+    private final Database db;
 
     public JavacordStart(String[] roleNames) {
         this.roleNames = roleNames;
@@ -137,12 +137,12 @@ public class JavacordStart {
         for (User user : usersInRole) {
             if (db.doesEntryExist(user.getId())) break;
             try {
-                new MessageBuilder()
-                        .append("You were added to a role with Minecraft Rewards on the " + api.getServerById(mcdb.serverID).get().getName() + " Discord Server!")
-                        .append("\nDo you have a Minecraft account? Answer using either \"yes\" or \"no\".")
-                        .send(user).thenAccept(msg -> {
-                    pmChannel = msg.getChannel();
-                }).join();
+                if (api.getServerById(mcdb.serverID).isPresent()) {
+                    new MessageBuilder()
+                            .append("You were added to a role with Minecraft Rewards on the " + api.getServerById(mcdb.serverID).get().getName() + " Discord Server!")
+                            .append("\nDo you have a Minecraft account? Answer using either \"yes\" or \"no\".")
+                            .send(user).thenAccept(msg -> pmChannel = msg.getChannel()).join();
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }

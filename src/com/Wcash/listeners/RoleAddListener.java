@@ -57,9 +57,7 @@ public class RoleAddListener implements UserRoleAddListener {
                 new MessageBuilder()
                         .append("You were added to a role with Minecraft Rewards on the " + roleEvent.getServer().getName() + " Discord Server!")
                         .append("\nDo you have a Minecraft account? Answer using either \"yes\" or \"no\".")
-                        .send(user).thenAccept(msg -> {
-                    pmChannel = msg.getChannel();
-                }).join();
+                        .send(user).thenAccept(msg -> pmChannel = msg.getChannel()).join();
             } catch (Exception e) {
                 e.printStackTrace();
             }

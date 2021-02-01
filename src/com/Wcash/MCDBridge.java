@@ -22,10 +22,9 @@ public class MCDBridge extends JavaPlugin {
     public FileConfiguration config;
     public File customConfigFile;
     public Plugin permissionsPlugin = null;
-    public PluginManager pluginManager;
+    //public PluginManager pluginManager;
     private static Database db;
     public static String[] versions = new String[2];
-    public boolean updateRequired = false;
     public boolean usePex = false;
     public String botToken;
     public String serverID;
