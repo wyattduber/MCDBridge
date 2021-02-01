@@ -26,7 +26,7 @@ public class MCDBCommand implements CommandExecutor {
                     mcdb.reload();
                     return true;
                 } else if (args[0].equalsIgnoreCase("retrolink")) {
-                    js.retroLink();
+                    js.retroLink(player);
                 } else {
                     player.sendMessage("§f[§9MCDBridge§f]§c Command not Found!");
                 }

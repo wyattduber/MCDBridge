@@ -231,13 +231,9 @@ public class Database {
             stmt.setString(1, Long.toString(discordID));
             rs = stmt.executeQuery();
 
-            if (rs.next()) {
-                dbcon.close();
-                return true;
-            } else {
-                dbcon.close();
-                return false;
-            }
+            dbcon.close();
+
+            return rs.next();
         } catch (SQLException e) {
             e.printStackTrace();
             return false;

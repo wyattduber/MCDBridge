@@ -52,7 +52,7 @@ public class PMListener implements MessageCreateListener {
         }
         if (step == 1) {
             if (event.getMessageContent().equalsIgnoreCase("no")) {
-                event.getChannel().sendMessage("Alright, thanks for supporting us!");
+                event.getChannel().sendMessage("Thanks for supporting us!");
                 RoleAddListener.removeListener(this);
             } else if (event.getMessageContent().equalsIgnoreCase("yes")) {
                 new MessageBuilder()
