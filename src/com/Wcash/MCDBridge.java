@@ -72,8 +72,8 @@ public class MCDBridge extends JavaPlugin {
         }
 
         /* Get the Plugin manager for finding other permissions plugins */
-        pluginManager = getServer().getPluginManager();
-        permissionsPlugin = getPermissionsPlugin(pluginManager);
+        //pluginManager = getServer().getPluginManager();
+        //permissionsPlugin = getPermissionsPlugin(pluginManager);
 
         /* Commands */
         try {
@@ -140,6 +140,7 @@ public class MCDBridge extends JavaPlugin {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        log("Minecraft Listeners Loaded!");
     }
 
     public boolean parseConfig() {
@@ -147,17 +148,18 @@ public class MCDBridge extends JavaPlugin {
             botToken = getConfigEntry("bot-token");
             if (getConfigEntry("bot-token").equalsIgnoreCase("BOTTOKEN") || getConfigEntry("bot-token").equalsIgnoreCase("")) throw new Exception();
         } catch (Exception e) {
-            warn("Invalid Bot Token! Please enter a valid bot token in config.yml and reload the plugin.");
             return false;
         }
 
         try {
             serverID = getConfigEntry("server-id");
             if (getConfigEntry("server-id").equalsIgnoreCase("000000000000000000") || getConfigEntry("server-id").equalsIgnoreCase("")) throw new Exception();
+            log("Discord Server Found!");
         } catch (Exception e) {
             warn("Invalid Server ID! Please enter a valid Server ID in config.yml and reload the plugin.");
             return false;
         }
+        log("Config Loaded!");
         return true;
     }
 

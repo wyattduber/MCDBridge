@@ -39,10 +39,14 @@ public class JavacordStart {
     }
 
     public void disableAPI() {
-        if (api != null) {
-            api.disconnect();
+        try {
+            if (api != null) {
+                api.disconnect();
+            }
+            api = null;
+        } catch (Exception e) {
+            mcdb.error("Error Disconnecting from API! Contact the developer.");
         }
-        api = null;
     }
 
     public void reload() {
@@ -61,6 +65,7 @@ public class JavacordStart {
         roleRemoveListener = new RoleRemoveListener(roles);
         api.addListener(roleAddListener);
         api.addListener(roleRemoveListener);
+        mcdb.log("Discord Listeners Loaded!");
     }
 
     private void parseConfig() {
@@ -71,6 +76,7 @@ public class JavacordStart {
         try {
             api = new DiscordApiBuilder().setToken(mcdb.botToken).setAllIntents().login().join();
             doListeners = true;
+            mcdb.log("Connected to " + api.getYourself().getName() + " Bot!");
         } catch (Exception e) {
             mcdb.warn("Could not connect to API! Please enter a valid Bot Token in config.yml and reload the plugin.");
             mcdb.warn("If the bot-token is valid, please file an issue on our GitHub.");
@@ -79,6 +85,7 @@ public class JavacordStart {
         try {
             if (api.getServerById(mcdb.serverID).isPresent())
             discordServer = api.getServerById(mcdb.serverID).get();
+            mcdb.log("Connected to " + discordServer.getName() + " Discord Server!");
         } catch (Exception e) {
             mcdb.warn("Server not Found! Please enter a valid Server ID in config.yml and reload the plugin.");
         }
@@ -87,6 +94,7 @@ public class JavacordStart {
             for (int i = 0; i < roleNames.length; i++) {
                 if (api.getRoleById(roleAndID.get(roleNames[i])).isPresent())
                     roles[i] = api.getRoleById(roleAndID.get(roleNames[i])).get();
+                mcdb.log("Role " + roles[i].getName() + " Loaded!");
             }
         } catch (Exception e) {
             mcdb.warn("Invalid Role List! Please enter valid Role ID's in the config.yml and reload the plugin.");
