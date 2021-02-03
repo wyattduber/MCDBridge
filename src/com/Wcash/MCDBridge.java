@@ -147,6 +147,7 @@ public class MCDBridge extends JavaPlugin {
             botToken = getConfigEntry("bot-token");
             if (getConfigEntry("bot-token").equalsIgnoreCase("BOTTOKEN") || getConfigEntry("bot-token").equalsIgnoreCase("")) throw new Exception();
         } catch (Exception e) {
+            warn("Invalid Bot Token! Please enter a valid Bot Token in config.yml and reload the plugin.");
             return false;
         }
 

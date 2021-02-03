@@ -14,7 +14,6 @@ import java.util.UUID;
 public class Database {
 
     private String dbPath;
-    private PreparedStatement statement;
     private Connection dbcon;
 
     /**
@@ -23,39 +22,15 @@ public class Database {
      */
     public Database(String dbName) {
 
-        Plugin plugin = MCDBridge.getPlugin();
-        dbPath = (plugin.getDataFolder().toString() + "/" + dbName);
-        dbPath = "jdbc:sqlite:" + dbPath;
-
-        /* -- Sets up database connection -- */
-        dbcon = null;
         try {
+            Plugin plugin = MCDBridge.getPlugin();
+            dbPath = (plugin.getDataFolder().toString() + "/" + dbName);
+            dbPath = "jdbc:sqlite:" + dbPath;
             dbcon = DriverManager.getConnection(dbPath);
+            PreparedStatement statement = dbcon.prepareStatement("CREATE TABLE IF NOT EXISTS link(minecraftid TEXT NOT NULL, discordid TEXT NOT NULL, username TEXT NOT NULL)");
+            statement.execute();
         } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        /* -- End setting up database connection -- */
-
-        /* -- If this is a new database, initializes the database structure. Else, does nothing -- */
-        try {
-            statement = dbcon.prepareStatement("CREATE TABLE IF NOT EXISTS link(minecraftid TEXT NOT NULL, discordid TEXT NOT NULL, username TEXT NOT NULL)");
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        try {
-            statement.execute(); //Actually runs the prepared statement
-        } catch (SQLException e) {
-            System.out.println("Error initializing the 'link' table");
-            e.printStackTrace();
-        }
-
-        /* -- End setting up database structure -- */
-
-        try {
-            dbcon.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
+            MCDBridge.getPlugin().error("Error while setting up database! Plugin will not save data!");;
         }
     }
 
@@ -75,15 +50,11 @@ public class Database {
      */
     public void insertLink(long discordID, String username, UUID minecraftID) {
         try {
-            dbcon = DriverManager.getConnection(dbPath);
-
             PreparedStatement stmt = dbcon.prepareStatement("INSERT INTO link(minecraftid,discordid,username) VALUES (?,?,?)");
             stmt.setString(1, minecraftID.toString());
             stmt.setString(2, Long.toString(discordID));
             stmt.setString(3, username);
             stmt.execute();
-
-            dbcon.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -93,14 +64,11 @@ public class Database {
         ResultSet rs;
         String username;
         try {
-            dbcon = DriverManager.getConnection(dbPath);
-
             PreparedStatement stmt = dbcon.prepareStatement("SELECT username FROM link WHERE minecraftid=?");
             stmt.setString(1, minecraftID.toString());
             rs = stmt.executeQuery();
             username = rs.getString("username");
 
-            dbcon.close();
             return username;
 
         } catch (SQLException e) {
@@ -112,15 +80,12 @@ public class Database {
 
     public void updateMinecraftUsername(String newUsername, UUID minecraftID) {
         try {
-            dbcon = DriverManager.getConnection(dbPath);
-
             PreparedStatement stmt = dbcon.prepareStatement("UPDATE link set username=? where minecraftid=?");
             stmt.setString(1, newUsername);
             stmt.setString(2, minecraftID.toString());
 
             stmt.execute();
 
-            dbcon.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -129,18 +94,11 @@ public class Database {
     public boolean doesEntryExist(UUID minecraftID) {
         ResultSet rs;
         try {
-            dbcon = DriverManager.getConnection(dbPath);
-
             PreparedStatement stmt = dbcon.prepareStatement("SELECT minecraftid FROM link WHERE minecraftid=?");
             stmt.setString(1, minecraftID.toString());
             rs = stmt.executeQuery();
 
-            dbcon.close();
-            if (rs.next()) {
-                return true;
-            } else {
-                return false;
-            }
+            return rs.next();
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
@@ -150,14 +108,10 @@ public class Database {
     public String getUsername(long discordID) {
         ResultSet rs;
         try {
-            dbcon = DriverManager.getConnection(dbPath);
-
             PreparedStatement stmt = dbcon.prepareStatement("SELECT username FROM link WHERE discordid=?");
             stmt.setString(1, Long.toString(discordID));
             rs = stmt.executeQuery();
             String username = rs.getString("username");
-
-            dbcon.close();
 
             return username;
         } catch (SQLException e) {
@@ -169,8 +123,6 @@ public class Database {
     public String getUUID(long discordID) {
         ResultSet rs;
         try {
-            dbcon = DriverManager.getConnection(dbPath);
-
             PreparedStatement stmt = dbcon.prepareStatement("SELECT minecraftid FROM link WHERE discordid=?");
             stmt.setString(1, Long.toString(discordID));
             rs = stmt.executeQuery();
@@ -178,8 +130,6 @@ public class Database {
             System.out.println("test1");
             System.out.println(minecraftid);
             System.out.println("test2");
-
-            dbcon.close();
 
             return minecraftid;
         } catch (SQLException e) {
@@ -191,13 +141,9 @@ public class Database {
     public boolean doesEntryExist(long discordID) {
         ResultSet rs;
         try {
-            dbcon = DriverManager.getConnection(dbPath);
-
             PreparedStatement stmt = dbcon.prepareStatement("SELECT discordid FROM link WHERE discordid=?");
             stmt.setString(1, Long.toString(discordID));
             rs = stmt.executeQuery();
-
-            dbcon.close();
 
             return rs.next();
         } catch (SQLException e) {
@@ -208,13 +154,10 @@ public class Database {
 
     public void removeLink(long discordID) {
         try {
-            dbcon = DriverManager.getConnection(dbPath);
-
             PreparedStatement stmt = dbcon.prepareStatement("DELETE FROM link WHERE discordid=?");
             stmt.setString(1, Long.toString(discordID));
             stmt.execute();
 
-            dbcon.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
