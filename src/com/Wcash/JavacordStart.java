@@ -1,9 +1,9 @@
 package com.Wcash;
 
 import com.Wcash.database.Database;
-import com.Wcash.listeners.PMListener;
-import com.Wcash.listeners.RoleAddListener;
-import com.Wcash.listeners.RoleRemoveListener;
+import com.Wcash.discordlisteners.PMListener;
+import com.Wcash.discordlisteners.RoleAddListener;
+import com.Wcash.discordlisteners.RoleRemoveListener;
 import org.bukkit.entity.Player;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.DiscordApiBuilder;
@@ -21,9 +21,11 @@ public class JavacordStart {
     public Server discordServer;
     public RoleAddListener roleAddListener;
     public RoleRemoveListener roleRemoveListener;
+    public Role[] roles;
+    public TextChannel chatStreamChannel;
+
     private final MCDBridge mcdb = MCDBridge.getPlugin();
     private final String[] roleNames;
-    public Role[] roles;
     private final HashMap<String, String> roleAndID;
     private boolean doListeners = false;
     private TextChannel pmChannel;
@@ -98,6 +100,16 @@ public class JavacordStart {
             }
         } catch (Exception e) {
             mcdb.warn("Invalid Role List! Please enter valid Role ID's in the config.yml and reload the plugin.");
+        }
+
+        if (mcdb.useChatStream) {
+            try {
+                if (api.getTextChannelById(mcdb.chatStreamID).isPresent()) {
+                    chatStreamChannel = api.getTextChannelById(mcdb.chatStreamID).get();
+                }
+            } catch (Exception e) {
+                mcdb.warn("The specified Chat Stream Channel cannot be found! Please make sure the channel ID is valid in the config.yml and the channel exists, then reload the plugin.");
+            }
         }
 
     }

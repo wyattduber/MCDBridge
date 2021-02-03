@@ -2,7 +2,7 @@ package com.Wcash;
 
 import com.Wcash.commands.MCDBCommand;
 import com.Wcash.database.Database;
-import com.Wcash.listeners.LoginListener;
+import com.Wcash.mclisteners.LoginListener;
 //import net.byteflux.libby.BukkitLibraryManager;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -22,7 +22,8 @@ public class MCDBridge extends JavaPlugin {
     public FileConfiguration config;
     public File customConfigFile;
     public Plugin permissionsPlugin = null;
-    //public PluginManager pluginManager;
+    public PluginManager pluginManager;
+    public boolean usePermissions;
     private static Database db;
     public static String[] versions = new String[2];
     public boolean usePex = false;
@@ -33,6 +34,9 @@ public class MCDBridge extends JavaPlugin {
     public HashMap<String, String> roleAndID = new HashMap<>(64);
     public HashMap<String, String[]> addCommands = new HashMap<>(144);
     public HashMap<String, String[]> removeCommands = new HashMap<>(144);
+    public String chatStreamID;
+    public String chatStreamMessageFormat;
+    public boolean useChatStream;
 
     public static MCDBridge getPlugin() {
         return getPlugin(MCDBridge.class);
@@ -64,6 +68,7 @@ public class MCDBridge extends JavaPlugin {
         /* Config Parsing */
         if (parseConfig()) {
             parseRoles();
+            initChatStream();
             js = new JavacordStart(roleNames);
             initListeners();
         } else {
@@ -71,8 +76,8 @@ public class MCDBridge extends JavaPlugin {
         }
 
         /* Get the Plugin manager for finding other permissions plugins */
-        //pluginManager = getServer().getPluginManager();
-        //permissionsPlugin = getPermissionsPlugin(pluginManager);
+        pluginManager = getServer().getPluginManager();
+        permissionsPlugin = getPermissionsPlugin(pluginManager);
 
         /* Commands */
         try {
@@ -112,6 +117,7 @@ public class MCDBridge extends JavaPlugin {
         if (parseConfig()) {
             parseRoles();
             initListeners();
+            initChatStream();
         } else {
             error("Config Not Properly Configured! Plugin will not function!");
         }
@@ -144,21 +150,24 @@ public class MCDBridge extends JavaPlugin {
 
     public boolean parseConfig() {
         try {
-            botToken = getConfigEntry("bot-token");
-            if (getConfigEntry("bot-token").equalsIgnoreCase("BOTTOKEN") || getConfigEntry("bot-token").equalsIgnoreCase("")) throw new Exception();
+            botToken = getConfigString("bot-token");
+            if (getConfigString("bot-token").equalsIgnoreCase("BOTTOKEN") || getConfigString("bot-token").equalsIgnoreCase("")) throw new Exception();
         } catch (Exception e) {
+            saveDefaultConfig();
             warn("Invalid Bot Token! Please enter a valid Bot Token in config.yml and reload the plugin.");
             return false;
         }
 
         try {
-            serverID = getConfigEntry("server-id");
-            if (getConfigEntry("server-id").equalsIgnoreCase("000000000000000000") || getConfigEntry("server-id").equalsIgnoreCase("")) throw new Exception();
+            serverID = getConfigString("server-id");
+            if (getConfigString("server-id").equalsIgnoreCase("000000000000000000") || getConfigString("server-id").equalsIgnoreCase("")) throw new Exception();
             log("Discord Server Found!");
         } catch (Exception e) {
+            saveDefaultConfig();
             warn("Invalid Server ID! Please enter a valid Server ID in config.yml and reload the plugin.");
             return false;
         }
+
         log("Config Loaded!");
         return true;
     }
@@ -167,12 +176,12 @@ public class MCDBridge extends JavaPlugin {
 
         try {
             permissionsPlugin = pluginManager.getPlugin("PermissionsEx");
-            if (config.getBoolean("Groups")) {
+            if (getConfigBool("chatstream-use-groups")) {
                 log("PermissionsEx Detected! Hooking with PermissionsEx");
                 usePex = true;
             }
-        } catch (Exception ignored) {
-
+        } catch (Exception e) {
+            log("No permissions plugin found!");
         }
 
         if (pluginManager.getPlugin("PermissionsEx") != null) {
@@ -183,7 +192,7 @@ public class MCDBridge extends JavaPlugin {
 
         if (permissionsPlugin != null) {
             if (permissionsPlugin.isEnabled() && permissionsPlugin.getName().equals("PermissionsEx") && config.getBoolean("Groups")) {
-                log("§f[§9MCDBridge§f] PermissionsEx Detected! Hooking permissions with PermissionsEx!");
+                log("PermissionsEx Detected! Hooking permissions with PermissionsEx!");
                 usePex = true;
             }
         }
@@ -192,25 +201,51 @@ public class MCDBridge extends JavaPlugin {
 
     private void parseRoles() {
 
-        roleNames = new String[config.getStringList("roles").size()];
+        try {
+            roleNames = new String[config.getStringList("roles").size()];
 
-        roleNames = config.getStringList("roles").toArray(roleNames);
+            roleNames = config.getStringList("roles").toArray(roleNames);
 
-        for (String roleName : roleNames) {
-            String[] tempAdd = new String[config.getStringList(roleName + ".add-commands").size()];
-            tempAdd = config.getStringList(roleName + ".add-commands").toArray(tempAdd);
-            addCommands.put(roleName, tempAdd);
+            for (String roleName : roleNames) {
+                String[] tempAdd = new String[config.getStringList(roleName + ".add-commands").size()];
+                tempAdd = config.getStringList(roleName + ".add-commands").toArray(tempAdd);
+                addCommands.put(roleName, tempAdd);
 
-            String[] tempRemove = new String[config.getStringList(roleName + ".remove-commands").size()];
-            tempRemove = config.getStringList(roleName + ".remove-commands").toArray(tempRemove);
-            removeCommands.put(roleName, tempRemove);
+                String[] tempRemove = new String[config.getStringList(roleName + ".remove-commands").size()];
+                tempRemove = config.getStringList(roleName + ".remove-commands").toArray(tempRemove);
+                removeCommands.put(roleName, tempRemove);
 
-            roleAndID.put(roleName, Objects.requireNonNull(config.getConfigurationSection(roleName)).getString("role-id"));
+                roleAndID.put(roleName, Objects.requireNonNull(config.getConfigurationSection(roleName)).getString("role-id"));
+            }
+        } catch (Exception e) {
+            saveDefaultConfig();
+            error("Error parsing roles! Make sure the config.yml is correct and reload the plugin.");
         }
     }
 
-    public String getConfigEntry(String entryName) {
+    public void initChatStream() {
+        useChatStream = getConfigBool("enable-chatstream");
+        if (useChatStream) {
+            log("ChatStream enabled! Loading necessary config items");
+            try {
+                chatStreamID = getConfigString("chatstream-channel");
+                chatStreamMessageFormat = getConfigString("chatstream-message-format");
+            } catch (Exception e) {
+                saveDefaultConfig();
+                warn("Invalid Channel ID for ChatStream! Please enter a valid Channel ID in the config.yml and reload the plugin.");
+            }
+        }
+
+
+
+    }
+
+    public String getConfigString(String entryName) {
         return config.getString(entryName);
+    }
+
+    public boolean getConfigBool(String entryName) {
+        return config.getBoolean(entryName);
     }
 
     public static Database getDatabase() {

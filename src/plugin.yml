@@ -4,6 +4,7 @@ author: Wcash
 main: com.Wcash.MCDBridge
 api-version: 1.16
 website: https://github.com/DoubleYouCash/MCDBridge
+softdepend: [PermissionsEx]
 
 commands:
   mcdb:

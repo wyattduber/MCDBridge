@@ -1,10 +1,15 @@
-package com.Wcash.listeners;
+package com.Wcash.mclisteners;
 
+import com.Wcash.JavacordStart;
 import com.Wcash.MCDBridge;
 import com.Wcash.database.Database;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.javacord.api.entity.message.MessageBuilder;
+import org.javacord.api.entity.message.embed.EmbedBuilder;
+
+import java.awt.*;
 
 public final class LoginListener implements Listener {
 
@@ -12,12 +17,13 @@ public final class LoginListener implements Listener {
     private final String[] versions;
     private final Database db = MCDBridge.getDatabase();
     private final MCDBridge mcdb;
+    private final JavacordStart js;
 
     public LoginListener(boolean updateRequired, String[] versions) {
         this.updateRequired = updateRequired;
         this.versions = versions;
         mcdb = MCDBridge.getPlugin();
-
+        js = mcdb.js;
     }
 
     @EventHandler
@@ -36,6 +42,13 @@ public final class LoginListener implements Listener {
             }
         }
 
+        if (mcdb.useChatStream) {
+            new MessageBuilder()
+                    .setEmbed(new EmbedBuilder()
+                            .setTitle(":heavy_plus_sign:" + event.getPlayer().getName() + " joined the server")
+                            .setColor(Color.green)
+                    ).send(js.chatStreamChannel);
+        }
     }
 
 }

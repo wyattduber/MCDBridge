@@ -1,4 +1,4 @@
-package com.Wcash.listeners;
+package com.Wcash.discordlisteners;
 
 import com.Wcash.MCDBridge;
 import com.Wcash.database.Database;
