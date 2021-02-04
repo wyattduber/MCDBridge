@@ -2,11 +2,16 @@ package com.Wcash;
 
 import com.Wcash.commands.MCDBCommand;
 import com.Wcash.database.Database;
+import com.Wcash.mclisteners.ChatListener;
 import com.Wcash.mclisteners.LoginListener;
 //import net.byteflux.libby.BukkitLibraryManager;
+import com.Wcash.mclisteners.LogoutListener;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -86,6 +91,8 @@ public class MCDBridge extends JavaPlugin {
             e.printStackTrace();
         }
 
+        //ChatListener.sendServerStartMessage();
+
     }
 
     @Override
@@ -93,6 +100,7 @@ public class MCDBridge extends JavaPlugin {
         if (js != null) {
             js.disableAPI();
         }
+        //ChatListener.sendServerCloseMessage();
     }
 
     /*public void loadDependencies() {
@@ -112,7 +120,9 @@ public class MCDBridge extends JavaPlugin {
         config = getCustomConfig();
         saveCustomConfig();
 
-        PlayerLoginEvent.getHandlerList().unregister(this);
+        PlayerJoinEvent.getHandlerList().unregister(this);
+        PlayerQuitEvent.getHandlerList().unregister(this);
+        AsyncPlayerChatEvent.getHandlerList().unregister(this);
 
         if (parseConfig()) {
             parseRoles();
@@ -176,7 +186,7 @@ public class MCDBridge extends JavaPlugin {
 
         try {
             permissionsPlugin = pluginManager.getPlugin("PermissionsEx");
-            if (getConfigBool("chatstream-use-groups")) {
+            if (getConfigBool("chatstream-use-permission-groups")) {
                 log("PermissionsEx Detected! Hooking with PermissionsEx");
                 usePex = true;
             }
@@ -225,18 +235,18 @@ public class MCDBridge extends JavaPlugin {
 
     public void initChatStream() {
         useChatStream = getConfigBool("enable-chatstream");
-        if (useChatStream) {
-            log("ChatStream enabled! Loading necessary config items");
-            try {
-                chatStreamID = getConfigString("chatstream-channel");
-                chatStreamMessageFormat = getConfigString("chatstream-message-format");
-            } catch (Exception e) {
-                saveDefaultConfig();
-                warn("Invalid Channel ID for ChatStream! Please enter a valid Channel ID in the config.yml and reload the plugin.");
-            }
+        if (!useChatStream) return;
+        log("ChatStream enabled! Loading necessary config items");
+        try {
+            chatStreamID = getConfigString("chatstream-channel");
+            chatStreamMessageFormat = getConfigString("chatstream-message-format");
+        } catch (Exception e) {
+            saveDefaultConfig();
+            warn("Invalid Channel ID for ChatStream! Please enter a valid Channel ID in the config.yml and reload the plugin.");
         }
 
-
+        getServer().getPluginManager().registerEvents(new LogoutListener(), this);
+        getServer().getPluginManager().registerEvents(new ChatListener(), this);
 
     }
 

@@ -1,6 +1,7 @@
 package com.Wcash;
 
 import com.Wcash.database.Database;
+import com.Wcash.discordlisteners.DiscordMessageListener;
 import com.Wcash.discordlisteners.PMListener;
 import com.Wcash.discordlisteners.RoleAddListener;
 import com.Wcash.discordlisteners.RoleRemoveListener;
@@ -21,6 +22,7 @@ public class JavacordStart {
     public Server discordServer;
     public RoleAddListener roleAddListener;
     public RoleRemoveListener roleRemoveListener;
+    public DiscordMessageListener discordMessageListener;
     public Role[] roles;
     public TextChannel chatStreamChannel;
 
@@ -56,6 +58,10 @@ public class JavacordStart {
         api.removeListener(roleRemoveListener);
         roleAddListener = null;
         roleRemoveListener = null;
+        if (mcdb.useChatStream) {
+            api.removeListener(discordMessageListener);
+            discordMessageListener = null;
+        }
 
         disableAPI();
         parseConfig();
@@ -107,6 +113,8 @@ public class JavacordStart {
                 if (api.getTextChannelById(mcdb.chatStreamID).isPresent()) {
                     chatStreamChannel = api.getTextChannelById(mcdb.chatStreamID).get();
                 }
+                discordMessageListener = new DiscordMessageListener();
+                api.addListener(discordMessageListener);
             } catch (Exception e) {
                 mcdb.warn("The specified Chat Stream Channel cannot be found! Please make sure the channel ID is valid in the config.yml and the channel exists, then reload the plugin.");
             }
