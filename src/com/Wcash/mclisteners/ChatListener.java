@@ -16,13 +16,11 @@ import java.awt.*;
 
 public class ChatListener implements Listener {
 
-    private final MCDBridge mcdb;
-    private static JavacordStart js;
+    private static MCDBridge mcdb;
     private String message;
 
     public ChatListener() {
         mcdb = MCDBridge.getPlugin();
-        js = mcdb.js;
     }
 
     @EventHandler
@@ -35,13 +33,13 @@ public class ChatListener implements Listener {
                         .append(event.getPlayer().getName())
                         .append(" » ")
                         .append(event.getMessage())
-                        .send(js.chatStreamChannel);
+                        .send(mcdb.js.chatStreamChannel);
             } else {
                 new MessageBuilder()
                         .append(event.getPlayer().getName())
                         .append(" » ")
                         .append(event.getMessage())
-                    .send(js.chatStreamChannel);
+                    .send(mcdb.js.chatStreamChannel);
             }
         }
     }
@@ -51,7 +49,7 @@ public class ChatListener implements Listener {
                 .setEmbed(new EmbedBuilder()
                         .setTitle(":white_check_mark: Server has Started")
                         .setColor(Color.green))
-                .send(js.chatStreamChannel);
+                .send(mcdb.js.chatStreamChannel);
     }
 
     public static void sendServerCloseMessage() {
@@ -59,7 +57,7 @@ public class ChatListener implements Listener {
                 .setEmbed(new EmbedBuilder()
                         .setTitle(":octagonal_sign: Server has Closed")
                         .setColor(Color.red))
-                .send(js.chatStreamChannel);
+                .send(mcdb.js.chatStreamChannel);
     }
 
 }

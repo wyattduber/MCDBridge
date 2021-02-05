@@ -91,7 +91,7 @@ public class MCDBridge extends JavaPlugin {
             e.printStackTrace();
         }
 
-        //ChatListener.sendServerStartMessage();
+        ChatListener.sendServerStartMessage();
 
     }
 
@@ -100,7 +100,7 @@ public class MCDBridge extends JavaPlugin {
         if (js != null) {
             js.disableAPI();
         }
-        //ChatListener.sendServerCloseMessage();
+        ChatListener.sendServerCloseMessage();
     }
 
     /*public void loadDependencies() {
@@ -244,10 +244,8 @@ public class MCDBridge extends JavaPlugin {
             saveDefaultConfig();
             warn("Invalid Channel ID for ChatStream! Please enter a valid Channel ID in the config.yml and reload the plugin.");
         }
-
         getServer().getPluginManager().registerEvents(new LogoutListener(), this);
         getServer().getPluginManager().registerEvents(new ChatListener(), this);
-
     }
 
     public String getConfigString(String entryName) {
