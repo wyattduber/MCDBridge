@@ -3,7 +3,7 @@ server-id: "000000000000000000"
 
 enable-chatstream: false
 chatstream-channel: "000000000000000000"
-chatstream-message-format: "&f[&9Discord&f]%USER%: %MESSAGE%"
+chatstream-message-format: "§f[§9Discord§f]%USER%: %MESSAGE%"
 chatstream-use-permission-groups: false
 
 roles:

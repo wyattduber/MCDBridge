@@ -1,6 +1,5 @@
 package com.Wcash.mclisteners;
 
-import com.Wcash.JavacordStart;
 import com.Wcash.MCDBridge;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -24,7 +23,7 @@ public class ChatListener implements Listener {
     @EventHandler
     public void onChatMessage(AsyncPlayerChatEvent event) {
         if (mcdb.useChatStream) {
-            if (mcdb.usePermissions) {
+            if (mcdb.usePex) {
                 PermissionUser user = PermissionsEx.getUser(event.getPlayer());
                 new MessageBuilder()
                         .append("**" + user.getRankLadderGroup("default").getName() + "** ")

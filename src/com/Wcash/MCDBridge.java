@@ -6,6 +6,9 @@ import com.Wcash.mclisteners.ChatListener;
 import com.Wcash.mclisteners.LoginListener;
 import net.byteflux.libby.BukkitLibraryManager;
 import com.Wcash.mclisteners.LogoutListener;
+import net.luckperms.api.LuckPerms;
+import org.apache.commons.lang.ObjectUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
@@ -13,6 +16,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.*;
@@ -27,13 +31,14 @@ public class MCDBridge extends JavaPlugin {
     public File customConfigFile;
     public Plugin permissionsPlugin = null;
     public PluginManager pluginManager;
-    public boolean usePermissions;
     private static Database db;
     public static String[] versions = new String[2];
     public boolean usePex = false;
+    public boolean useLuckPerms = false;
     public String botToken;
     public String serverID;
     public JavacordStart js;
+    public LuckPerms lp;
     public String[] roleNames;
     public HashMap<String, String> roleAndID = new HashMap<>(64);
     public HashMap<String, String[]> addCommands = new HashMap<>(144);
@@ -189,24 +194,25 @@ public class MCDBridge extends JavaPlugin {
 
         try {
             permissionsPlugin = pluginManager.getPlugin("PermissionsEx");
-            if (getConfigBool("chatstream-use-permission-groups")) {
-                log("PermissionsEx Detected! Hooking with PermissionsEx");
+            if (permissionsPlugin.isEnabled() && getConfigBool("chatstream-use-permission-groups")) {
                 usePex = true;
+                useLuckPerms = false;
+                log("PermissionsEx Detected! Hooking Permissions");
             }
-        } catch (Exception e) {
-            log("No permissions plugin found!");
-        }
-
-        if (pluginManager.getPlugin("PermissionsEx") != null) {
-            permissionsPlugin = pluginManager.getPlugin("PermissionsEx");
-        } else if (pluginManager.getPlugin("LuckPerms") != null) {
-            permissionsPlugin = pluginManager.getPlugin("LuckPerms");
-        }
-
-        if (permissionsPlugin != null) {
-            if (permissionsPlugin.isEnabled() && permissionsPlugin.getName().equals("PermissionsEx") && config.getBoolean("Groups")) {
-                log("PermissionsEx Detected! Hooking permissions with PermissionsEx!");
-                usePex = true;
+        } catch (NullPointerException e) {
+            try {
+                permissionsPlugin = pluginManager.getPlugin("LuckPerms");
+                if (permissionsPlugin.isEnabled() && getConfigBool("chatstream-use-permission-groups")) {
+                    RegisteredServiceProvider<LuckPerms> provider = Bukkit.getServicesManager().getRegistration(LuckPerms.class);
+                    if (provider != null) {
+                        lp = provider.getProvider();
+                    }
+                    useLuckPerms = true;
+                    usePex = false;
+                    log("LuckPerms Detected! Hooking Permissions");
+                }
+            } catch (NullPointerException f) {
+                log("No permissions plugin found!");
             }
         }
         return permissionsPlugin;
