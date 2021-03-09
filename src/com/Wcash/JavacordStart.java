@@ -85,7 +85,7 @@ public class JavacordStart {
             api = new DiscordApiBuilder().setToken(mcdb.botToken).setAllIntents().login().join();
             doListeners = true;
             mcdb.log("Connected to " + api.getYourself().getName() + " Bot!");
-        } catch (Exception e) {
+        } catch (NullPointerException e) {
             mcdb.warn("Could not connect to API! Please enter a valid Bot Token in config.yml and reload the plugin.");
             mcdb.warn("If the bot-token is valid, please file an issue on our GitHub.");
         }

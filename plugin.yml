@@ -1,9 +1,9 @@
 name: MCDBridge
-version: 1.0.1
+version: 1.1.0
 author: Wcash
 main: com.Wcash.MCDBridge
 api-version: 1.16
-website: https://github.com/DoubleYouCash/MCDBridge
+website: https://www.github.com/DoubleYouCash/MCDBridge
 softdepend: [PermissionsEx]
 
 commands:

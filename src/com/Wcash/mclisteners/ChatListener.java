@@ -6,7 +6,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 
-import org.javacord.api.entity.channel.TextChannel;
 import org.javacord.api.entity.message.MessageBuilder;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import ru.tehkode.permissions.PermissionUser;
@@ -17,7 +16,6 @@ import java.awt.*;
 public class ChatListener implements Listener {
 
     private static MCDBridge mcdb;
-    private String message;
 
     public ChatListener() {
         mcdb = MCDBridge.getPlugin();
@@ -55,7 +53,7 @@ public class ChatListener implements Listener {
     public static void sendServerCloseMessage() {
         new MessageBuilder()
                 .setEmbed(new EmbedBuilder()
-                        .setTitle(":octagonal_sign: Server has Closed")
+                        .setTitle(":octagonal_sign: Server has Stopped")
                         .setColor(Color.red))
                 .send(mcdb.js.chatStreamChannel);
     }

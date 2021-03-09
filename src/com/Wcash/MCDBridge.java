@@ -4,13 +4,12 @@ import com.Wcash.commands.MCDBCommand;
 import com.Wcash.database.Database;
 import com.Wcash.mclisteners.ChatListener;
 import com.Wcash.mclisteners.LoginListener;
-//import net.byteflux.libby.BukkitLibraryManager;
+import net.byteflux.libby.BukkitLibraryManager;
 import com.Wcash.mclisteners.LogoutListener;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
@@ -51,7 +50,7 @@ public class MCDBridge extends JavaPlugin {
     public void onEnable() {
 
         /* Use Libby */
-        //loadDependencies();
+        loadDependencies();
 
         /* Load and Initiate Configs */
         try {
@@ -91,7 +90,9 @@ public class MCDBridge extends JavaPlugin {
             e.printStackTrace();
         }
 
-        ChatListener.sendServerStartMessage();
+        if (useChatStream) {
+            ChatListener.sendServerStartMessage();
+        }
 
     }
 
@@ -100,10 +101,12 @@ public class MCDBridge extends JavaPlugin {
         if (js != null) {
             js.disableAPI();
         }
-        ChatListener.sendServerCloseMessage();
+        if (useChatStream) {
+            ChatListener.sendServerCloseMessage();
+        }
     }
 
-    /*public void loadDependencies() {
+    public void loadDependencies() {
         BukkitLibraryManager manager = new BukkitLibraryManager(this); //depends on the server core you are using
         manager.addMavenCentral(); //there are also methods for other repositories
         manager.fromGeneratedResource(this.getResource("AzimDP.json")).forEach(library->{
@@ -113,7 +116,7 @@ public class MCDBridge extends JavaPlugin {
                 getLogger().info("Skipping download of\""+library+"\", it either doesnt exist or has no .jar file");
             }
         });
-    }*/
+    }
 
     public void reload() {
         reloadCustomConfig();

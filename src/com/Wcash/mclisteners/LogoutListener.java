@@ -8,16 +8,14 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.javacord.api.entity.message.MessageBuilder;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 
-import java.awt.*;
+import java.awt.Color;
 
 public class LogoutListener implements Listener {
 
     private final MCDBridge mcdb;
-    private final JavacordStart js;
 
     public LogoutListener() {
         mcdb = MCDBridge.getPlugin();
-        js = mcdb.js;
     }
 
     @EventHandler
@@ -26,8 +24,8 @@ public class LogoutListener implements Listener {
             new MessageBuilder()
                     .setEmbed(new EmbedBuilder()
                             .setTitle(":heavy_minus_sign:" + event.getPlayer().getName() + " left the server")
-                            .setColor(Color.red)
-                    ).send(js.chatStreamChannel);
+                            .setColor(Color.red))
+                    .send(mcdb.js.chatStreamChannel);
         }
     }
 
