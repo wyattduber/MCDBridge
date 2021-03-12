@@ -25,8 +25,10 @@ public class ChatListener implements Listener {
         if (mcdb.useChatStream) {
             if (mcdb.usePex) {
                 PermissionUser user = PermissionsEx.getUser(event.getPlayer());
+                String groupName = "";
+                try { groupName = user.getRankLadderGroup("default").getName(); } catch (NullPointerException ignored) {}
                 new MessageBuilder()
-                        .append("**" + user.getRankLadderGroup("default").getName() + "** ")
+                        .append("**" + groupName + "** ")
                         .append(event.getPlayer().getName())
                         .append(" » ")
                         .append(event.getMessage())

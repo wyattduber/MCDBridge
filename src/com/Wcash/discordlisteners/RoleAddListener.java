@@ -9,6 +9,7 @@ import org.javacord.api.entity.message.MessageBuilder;
 import org.javacord.api.entity.permission.Role;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.server.role.UserRoleAddEvent;
+import org.javacord.api.listener.message.MessageCreateListener;
 import org.javacord.api.listener.server.role.UserRoleAddListener;
 
 import java.util.HashMap;
@@ -66,7 +67,7 @@ public class RoleAddListener implements UserRoleAddListener {
         }
     }
 
-    public static void removeListener(PMListener listener) {
+    public static void removeListener(User user, MessageCreateListener listener) {
         user.removeUserAttachableListener(listener);
         i = 0;
     }

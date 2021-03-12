@@ -1,6 +1,8 @@
 bot-token: "BOTTOKEN"
 server-id: "000000000000000000"
 
+change-nickanme-on-link: false
+
 enable-chatstream: false
 chatstream-channel: "000000000000000000"
 chatstream-message-format: "§f[§9Discord§f]%USER%: %MESSAGE%"

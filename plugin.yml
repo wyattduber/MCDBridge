@@ -28,3 +28,6 @@ permissions:
   mcdb.command.retrolink:
     description: Retroactively sends messages to all users within the specified roles asking if they would like to receive the rewards
     default: op
+  mcdb.command.link:
+    description: Link your minecraft account to your discord account
+    default: op

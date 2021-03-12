@@ -35,6 +35,7 @@ public class MCDBridge extends JavaPlugin {
     public static String[] versions = new String[2];
     public boolean usePex = false;
     public boolean useLuckPerms = false;
+    public boolean changeNickOnLink;
     public String botToken;
     public String serverID;
     public JavacordStart js;
@@ -103,11 +104,12 @@ public class MCDBridge extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        if (js != null) {
-            js.disableAPI();
-        }
         if (useChatStream) {
             ChatListener.sendServerCloseMessage();
+        }
+
+        if (js != null) {
+            js.disableAPI();
         }
     }
 
@@ -129,8 +131,10 @@ public class MCDBridge extends JavaPlugin {
         saveCustomConfig();
 
         PlayerJoinEvent.getHandlerList().unregister(this);
-        PlayerQuitEvent.getHandlerList().unregister(this);
-        AsyncPlayerChatEvent.getHandlerList().unregister(this);
+        if (useChatStream) {
+            PlayerQuitEvent.getHandlerList().unregister(this);
+            AsyncPlayerChatEvent.getHandlerList().unregister(this);
+        }
 
         if (parseConfig()) {
             parseRoles();
@@ -140,7 +144,7 @@ public class MCDBridge extends JavaPlugin {
             error("Config Not Properly Configured! Plugin will not function!");
         }
 
-        if (parseConfig() && js == null) {
+        if (parseConfig() || js == null) {
             js = new JavacordStart(roleNames);
         } else {
             js.reload();
@@ -185,6 +189,8 @@ public class MCDBridge extends JavaPlugin {
             warn("Invalid Server ID! Please enter a valid Server ID in config.yml and reload the plugin.");
             return false;
         }
+
+        changeNickOnLink = getConfigBool("change-nickname-on-link");
 
         log("Config Loaded!");
         return true;

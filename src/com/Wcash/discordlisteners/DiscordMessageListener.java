@@ -50,14 +50,36 @@ public class DiscordMessageListener implements MessageCreateListener {
             role = user.getRoles(js.api.getServerById(mcdb.serverID).get()).get(0).getName();
         } catch (NullPointerException ignored) {}
 
-        messageFormat = messageFormat.replace("%GROUP%", group);
-        messageFormat = messageFormat.replace("%PREFIX%", prefix);
-        messageFormat = messageFormat.replace("%ROLE%", role);
-        messageFormat = messageFormat.replace("%USER%", event.getMessageAuthor().getName());
-        messageFormat = messageFormat.replace("%MESSAGE%", event.getMessageContent());
+        colorCodeFormatting();
+
+        //Placeholder Replacement
+        messageFormat = messageFormat.replaceAll("%GROUP%", group);
+        messageFormat = messageFormat.replaceAll("%PREFIX%", prefix);
+        messageFormat = messageFormat.replaceAll("%ROLE%", role);
+        messageFormat = messageFormat.replaceAll("%USER%", event.getMessageAuthor().getName());
+        messageFormat = messageFormat.replaceAll("%MESSAGE%", event.getMessageContent());
 
         mcdb.getServer().broadcastMessage(messageFormat);
 
+    }
+
+    private void colorCodeFormatting() {
+        messageFormat = messageFormat.replaceAll("&a", "§a");
+        messageFormat = messageFormat.replaceAll("&b", "§b");
+        messageFormat = messageFormat.replaceAll("&c", "§c");
+        messageFormat = messageFormat.replaceAll("&d", "§d");
+        messageFormat = messageFormat.replaceAll("&e", "§e");
+        messageFormat = messageFormat.replaceAll("&f", "§f");
+        messageFormat = messageFormat.replaceAll("&1", "§1");
+        messageFormat = messageFormat.replaceAll("&2", "§2");
+        messageFormat = messageFormat.replaceAll("&3", "§3");
+        messageFormat = messageFormat.replaceAll("&4", "§4");
+        messageFormat = messageFormat.replaceAll("&5", "§5");
+        messageFormat = messageFormat.replaceAll("&6", "§6");
+        messageFormat = messageFormat.replaceAll("&7", "§7");
+        messageFormat = messageFormat.replaceAll("&8", "§8");
+        messageFormat = messageFormat.replaceAll("&9", "§9");
+        messageFormat = messageFormat.replaceAll("&0", "§0");
     }
 
 }

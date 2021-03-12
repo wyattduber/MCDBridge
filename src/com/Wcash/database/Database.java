@@ -1,9 +1,11 @@
 package com.Wcash.database;
 
 import com.Wcash.MCDBridge;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 import java.sql.*;
+import java.util.Objects;
 import java.util.UUID;
 
 /**
@@ -15,13 +17,14 @@ public class Database {
 
     private String dbPath;
     private Connection dbcon;
+    private MCDBridge mcdb;
 
     /**
      * Constructor; Builds a new database object
      * @param dbName The name of the database; should be user-supplied. If it exists, a connection will be made. If it does not exist, it will be created and initialized
      */
     public Database(String dbName) {
-
+        mcdb = MCDBridge.getPlugin();
         try {
             Plugin plugin = MCDBridge.getPlugin();
             dbPath = (plugin.getDataFolder().toString() + "/" + dbName);
@@ -100,7 +103,7 @@ public class Database {
 
             return rs.next();
         } catch (SQLException e) {
-            e.printStackTrace();
+            Objects.requireNonNull(mcdb.getServer().getPlayer(minecraftID)).sendMessage("§f[§9MCDBridge§f]§c Account Already Linked!");
             return false;
         }
     }
@@ -120,18 +123,26 @@ public class Database {
         }
     }
 
+    public String getDiscordId(UUID minecraftID) {
+        ResultSet rs;
+        try {
+            PreparedStatement stmt = dbcon.prepareStatement("SELECT discordid FROM link WHERE minecraftid=?");
+            stmt.setString(1, minecraftID.toString());
+            rs = stmt.executeQuery();
+            return rs.getString("discordid");
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return "";
+        }
+    }
+
     public String getUUID(long discordID) {
         ResultSet rs;
         try {
             PreparedStatement stmt = dbcon.prepareStatement("SELECT minecraftid FROM link WHERE discordid=?");
             stmt.setString(1, Long.toString(discordID));
             rs = stmt.executeQuery();
-            String minecraftid = rs.getString("minecraftid");
-            System.out.println("test1");
-            System.out.println(minecraftid);
-            System.out.println("test2");
-
-            return minecraftid;
+            return rs.getString("minecraftid");
         } catch (SQLException e) {
          e.printStackTrace();
          return "";

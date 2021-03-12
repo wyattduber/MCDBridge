@@ -6,7 +6,6 @@ import com.Wcash.database.Database;
 import org.bukkit.entity.Player;
 import org.javacord.api.entity.channel.TextChannel;
 import org.javacord.api.entity.message.MessageBuilder;
-import org.javacord.api.entity.permission.Role;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
@@ -16,7 +15,7 @@ import java.util.HashMap;
 import java.util.Objects;
 import java.util.Random;
 
-public class PMListener implements MessageCreateListener {
+public class LinkListener implements MessageCreateListener {
 
     private final MCDBridge mcdb;
     private final org.bukkit.Server server;
@@ -25,20 +24,18 @@ public class PMListener implements MessageCreateListener {
     private int step;
     private Player player;
     private final String[] roleNames;
-    private final Role addedRole;
     private final HashMap<String, String[]> addCommands;
     private final TextChannel channel;
     private boolean resent = false;
     private JavacordStart js;
 
-    public PMListener(Role addedRole, TextChannel channel) {
+    public LinkListener(TextChannel channel) {
         mcdb = MCDBridge.getPlugin();
         server = mcdb.getServer();
         db = MCDBridge.getDatabase();
         roleNames = mcdb.roleNames;
         addCommands = mcdb.addCommands;
         this.channel = channel;
-        this.addedRole = addedRole;
         step = 1;
     }
 
@@ -59,7 +56,7 @@ public class PMListener implements MessageCreateListener {
         }
         if (step == 1) {
             if (event.getMessageContent().equalsIgnoreCase("no")) {
-                event.getChannel().sendMessage("Thanks for supporting us!");
+                event.getChannel().sendMessage("Thanks! Contact an admin if this was done fraudulently.");
                 RoleAddListener.removeListener(user, this);
             } else if (event.getMessageContent().equalsIgnoreCase("yes")) {
                 new MessageBuilder()
@@ -98,9 +95,9 @@ public class PMListener implements MessageCreateListener {
             try {
                 if (event.getMessageContent().equals(String.format("%06d", randInt)) && !resent) {
                     db.insertLink(event.getMessageAuthor().getId(), player.getName(), player.getUniqueId());
-                    RoleAddListener.runCommands(mcdb, roleNames, addCommands, addedRole, player.getName());
-                    event.getChannel().sendMessage("Rewards Given! Message one of the online administrators if this process had any errors or you still haven't received your rewards.");
-                    player.sendMessage("§f[§9MCDBridge§f] Rewards Received!");
+                    if (mcdb.changeNickOnLink) { user.updateNickname(discordServer, player.getName()); }
+                    event.getChannel().sendMessage("Accounts Linked! Message one of the online administrators if this process had any errors or if your nickname hasn't changed.");
+                    player.sendMessage("§f[§9MCDBridge§f] Accounts Linked!");
                     step = 4;
                     RoleAddListener.removeListener(user, this);
                 } else if (resent && event.getMessageContent().equalsIgnoreCase("resend")) {
@@ -125,3 +122,4 @@ public class PMListener implements MessageCreateListener {
     }
 
 }
+

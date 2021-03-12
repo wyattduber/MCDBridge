@@ -146,7 +146,7 @@ public class JavacordStart {
             usersInRole = role.getUsers().toArray(usersInRole);
             if (usersInRole.length == 0) {
                 mcdb.warn("No users in" + role.getName() + " role!");
-                break;
+                return;
             }
             users = getUsers(users, role, usersInRole);
         }
