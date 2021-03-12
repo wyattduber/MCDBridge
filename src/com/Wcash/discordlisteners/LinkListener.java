@@ -95,7 +95,7 @@ public class LinkListener implements MessageCreateListener {
             try {
                 if (event.getMessageContent().equals(String.format("%06d", randInt)) && !resent) {
                     db.insertLink(event.getMessageAuthor().getId(), player.getName(), player.getUniqueId());
-                    if (mcdb.changeNickOnLink) { user.updateNickname(discordServer, player.getName()); }
+                    if (mcdb.changeNickOnLink) { js.api.getServerById(mcdb.serverID).get().updateNickname(user, player.getName()).join(); }
                     event.getChannel().sendMessage("Accounts Linked! Message one of the online administrators if this process had any errors or if your nickname hasn't changed.");
                     player.sendMessage("§f[§9MCDBridge§f] Accounts Linked!");
                     step = 4;

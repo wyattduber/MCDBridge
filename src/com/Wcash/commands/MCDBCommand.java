@@ -44,6 +44,9 @@ public class MCDBCommand implements CommandExecutor {
                     if (args.length == 1) return false;
                     startLinking(player, args[1]);
                     return true;
+                } else if (args[0].equalsIgnoreCase("unlink")) {
+                    unlink(player);
+                    return true;
                 } else {
                     player.sendMessage("§f[§9MCDBridge§f]§c Command not Found!");
                     return true;
@@ -90,7 +93,17 @@ public class MCDBCommand implements CommandExecutor {
             player.sendMessage("§f[§9MCDBridge§f]§c Player Not in Discord Server!");
             e.printStackTrace();
         }
+        player.sendMessage("§f[§9MCDBridge§f] Check your Discord PM's to continue!");
+    }
 
+    public void unlink(Player player) {
+        Database db = MCDBridge.getDatabase();
+        if (!db.doesEntryExist(player.getUniqueId())) {
+            player.sendMessage("§f[§9MCDBridge§f]§c Account Not Linked!");
+            return;
+        }
+        db.removeLink(player.getUniqueId());
+        player.sendMessage("§f[§9MCDBridge§f] Account Successfully Unlinked!");
     }
 
 }

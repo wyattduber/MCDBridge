@@ -174,4 +174,15 @@ public class Database {
         }
     }
 
+    public void removeLink(UUID minecraftID) {
+        try {
+            PreparedStatement stmt = dbcon.prepareStatement("DELETE FROM link WHERE minecraftid=?");
+            stmt.setString(1, minecraftID.toString());
+            stmt.execute();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
 }
