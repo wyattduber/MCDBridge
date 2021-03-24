@@ -38,7 +38,11 @@ public class MCDBCommand implements CommandExecutor {
                     player.sendMessage("§f[§9MCDBridge§f] Configuration Reloaded!");
                     return true;
                 } else if (args[0].equalsIgnoreCase("retrolink")) {
-                    js.retroLink(player);
+                    if (args.length == 1) {
+                        js.retroLink(player);
+                    } else if (args.length == 3) {
+                        js.retroLinkSingle(args[1], args[2]);
+                    }
                     return true;
                 } else if (args[0].equalsIgnoreCase("link")) {
                     if (args.length == 1) return false;

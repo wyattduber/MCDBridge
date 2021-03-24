@@ -23,25 +23,20 @@ public class LinkListener implements MessageCreateListener {
     private int randInt;
     private int step;
     private Player player;
-    private final String[] roleNames;
-    private final HashMap<String, String[]> addCommands;
     private final TextChannel channel;
     private boolean resent = false;
-    private JavacordStart js;
 
     public LinkListener(TextChannel channel) {
         mcdb = MCDBridge.getPlugin();
         server = mcdb.getServer();
         db = MCDBridge.getDatabase();
-        roleNames = mcdb.roleNames;
-        addCommands = mcdb.addCommands;
         this.channel = channel;
         step = 1;
     }
 
     @Override
     public void onMessageCreate(MessageCreateEvent event) {
-        js = mcdb.js;
+        JavacordStart js = mcdb.js;
         Server discordServer = js.api.getServerById(mcdb.serverID).get();
         User user = event.getMessageAuthor().asUser().get();
 
@@ -95,7 +90,7 @@ public class LinkListener implements MessageCreateListener {
             try {
                 if (event.getMessageContent().equals(String.format("%06d", randInt)) && !resent) {
                     db.insertLink(event.getMessageAuthor().getId(), player.getName(), player.getUniqueId());
-                    if (mcdb.changeNickOnLink) { js.api.getServerById(mcdb.serverID).get().updateNickname(user, player.getName()).join(); }
+                    if (mcdb.changeNickOnLink) { discordServer.updateNickname(user, player.getName()).join(); }
                     event.getChannel().sendMessage("Accounts Linked! Message one of the online administrators if this process had any errors or if your nickname hasn't changed.");
                     player.sendMessage("§f[§9MCDBridge§f] Accounts Linked!");
                     step = 4;

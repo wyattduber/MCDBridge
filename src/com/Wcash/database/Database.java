@@ -83,7 +83,7 @@ public class Database {
 
     public void updateMinecraftUsername(String newUsername, UUID minecraftID) {
         try {
-            PreparedStatement stmt = dbcon.prepareStatement("UPDATE link set username=? where minecraftid=?");
+            PreparedStatement stmt = dbcon.prepareStatement("UPDATE link SET username=? WHERE minecraftid=?");
             stmt.setString(1, newUsername);
             stmt.setString(2, minecraftID.toString());
 

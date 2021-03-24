@@ -21,7 +21,6 @@ public class RoleAddListener implements UserRoleAddListener {
     private final Role[] roles;
     private static Role addedRole;
     private TextChannel pmChannel;
-    private static User user;
     public static int i;
 
 
@@ -52,7 +51,7 @@ public class RoleAddListener implements UserRoleAddListener {
             mcdb.warn("User already exists within database!");
         }
 
-        user = roleEvent.getUser();
+        User user = roleEvent.getUser();
         if (i == 0) {
             try {
                 new MessageBuilder()

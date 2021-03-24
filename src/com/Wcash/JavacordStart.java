@@ -15,6 +15,7 @@ import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 
 import java.util.HashMap;
+import java.util.concurrent.ExecutionException;
 
 public class JavacordStart {
 
@@ -137,6 +138,27 @@ public class JavacordStart {
         }
         mcdb.log("Total: " + users);
         player.sendMessage("Total: " + users);
+    }
+
+    public void retroLinkSingle(String discriminatedName, String roleName) {
+        try {
+            Role role = discordServer.getRoleById(roleAndID.get(roleName)).get();
+            User user = api.getCachedUserByDiscriminatedName(discriminatedName).get();
+            if (db.doesEntryExist(user.getId())) return;
+            try {
+                if (api.getServerById(mcdb.serverID).isPresent()) {
+                    new MessageBuilder()
+                            .append("You were added to a role with Minecraft Rewards on the " + api.getServerById(mcdb.serverID).get().getName() + " Discord Server!")
+                            .append("\nDo you have a Minecraft account? Answer using either \"yes\" or \"no\".")
+                            .send(user).thenAccept(msg -> pmChannel = msg.getChannel()).join();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            user.addUserAttachableListener(new PMListener(role, pmChannel));
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+        }
     }
 
     public void retroLink() {
