@@ -26,6 +26,7 @@ Here's an example:
 
 # Config Example
 
+```yml
 bot-token: "BOTTOKEN"
 server-id: "000000000000000000"
 
@@ -50,6 +51,7 @@ nitro:
   remove-commands:
    - "say %USER% was removed from the Nitro Role"
     - "smite %USER%"
+```
 
 # Verification: 
 
