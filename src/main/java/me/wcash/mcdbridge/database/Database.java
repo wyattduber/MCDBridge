@@ -1,6 +1,6 @@
-package com.Wcash.database;
+package me.wcash.mcdbridge.database;
 
-import com.Wcash.MCDBridge;
+import me.wcash.mcdbridge.MCDBridge;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
@@ -144,8 +144,8 @@ public class Database {
             rs = stmt.executeQuery();
             return rs.getString("minecraftid");
         } catch (SQLException e) {
-         e.printStackTrace();
-         return "";
+            e.printStackTrace();
+            return "";
         }
     }
 

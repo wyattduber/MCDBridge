@@ -1,7 +1,7 @@
-package com.Wcash.mclisteners;
+package me.wcash.mcdbridge.listeners.minecraft;
 
-import com.Wcash.JavacordStart;
-import com.Wcash.MCDBridge;
+import me.wcash.mcdbridge.JavacordStart;
+import me.wcash.mcdbridge.MCDBridge;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;

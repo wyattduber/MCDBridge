@@ -1,11 +1,12 @@
-package com.Wcash;
+package me.wcash.mcdbridge;
 
-import com.Wcash.commands.MCDBCommand;
-import com.Wcash.database.Database;
-import com.Wcash.mclisteners.ChatListener;
-import com.Wcash.mclisteners.LoginListener;
+import me.wcash.mcdbridge.commands.MCDBCommand;
+import me.wcash.mcdbridge.database.Database;
+import me.wcash.mcdbridge.javacord.JavacordHelper;
+import me.wcash.mcdbridge.listeners.minecraft.ChatListener;
+import me.wcash.mcdbridge.listeners.minecraft.LoginListener;
 import net.byteflux.libby.BukkitLibraryManager;
-import com.Wcash.mclisteners.LogoutListener;
+import me.wcash.mcdbridge.listeners.minecraft.LogoutListener;
 import net.luckperms.api.LuckPerms;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -37,7 +38,7 @@ public class MCDBridge extends JavaPlugin {
     public boolean changeNickOnLink;
     public String botToken;
     public String serverID;
-    public JavacordStart js;
+    public JavacordHelper js;
     public LuckPerms lp;
     public String[] roleNames;
     public HashMap<String, String> roleAndID = new HashMap<>(64);
@@ -78,7 +79,7 @@ public class MCDBridge extends JavaPlugin {
         if (parseConfig()) {
             parseRoles();
             initChatStream();
-            js = new JavacordStart(roleNames);
+            js = new JavacordHelper(roleNames);
             initListeners();
         } else {
             error("Config Not Properly Configured! Plugin will not function!");
@@ -144,7 +145,7 @@ public class MCDBridge extends JavaPlugin {
         }
 
         if (parseConfig() || js == null) {
-            js = new JavacordStart(roleNames);
+            js = new JavacordHelper(roleNames);
         } else {
             js.reload();
         }

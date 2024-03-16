@@ -1,6 +1,6 @@
-package com.Wcash.mclisteners;
+package me.wcash.mcdbridge.listeners.minecraft;
 
-import com.Wcash.MCDBridge;
+import me.wcash.mcdbridge.MCDBridge;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
@@ -38,7 +38,7 @@ public class ChatListener implements Listener {
                         .append(event.getPlayer().getName())
                         .append(" » ")
                         .append(event.getMessage())
-                    .send(mcdb.js.chatStreamChannel);
+                        .send(mcdb.js.chatStreamChannel);
             }
         }
     }

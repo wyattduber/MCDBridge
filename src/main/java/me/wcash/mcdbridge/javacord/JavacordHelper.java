@@ -1,10 +1,11 @@
-package com.Wcash;
+package me.wcash.mcdbridge.javacord;
 
-import com.Wcash.database.Database;
-import com.Wcash.discordlisteners.DiscordMessageListener;
-import com.Wcash.discordlisteners.PMListener;
-import com.Wcash.discordlisteners.RoleAddListener;
-import com.Wcash.discordlisteners.RoleRemoveListener;
+import me.wcash.mcdbridge.MCDBridge;
+import me.wcash.mcdbridge.database.Database;
+import me.wcash.mcdbridge.listeners.discord.DiscordMessageListener;
+import me.wcash.mcdbridge.listeners.discord.PMListener;
+import me.wcash.mcdbridge.listeners.discord.RoleAddListener;
+import me.wcash.mcdbridge.listeners.discord.RoleRemoveListener;
 import org.bukkit.entity.Player;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.DiscordApiBuilder;
@@ -17,7 +18,7 @@ import org.javacord.api.entity.user.User;
 import java.util.HashMap;
 import java.util.concurrent.ExecutionException;
 
-public class JavacordStart {
+public class JavacordHelper {
 
     public DiscordApi api;
     public Server discordServer;
@@ -26,7 +27,6 @@ public class JavacordStart {
     public DiscordMessageListener discordMessageListener;
     public Role[] roles;
     public TextChannel chatStreamChannel;
-
     private final MCDBridge mcdb = MCDBridge.getPlugin();
     private final String[] roleNames;
     private final HashMap<String, String> roleAndID;
@@ -34,7 +34,7 @@ public class JavacordStart {
     private TextChannel pmChannel;
     private final Database db;
 
-    public JavacordStart(String[] roleNames) {
+    public JavacordHelper(String[] roleNames) {
         this.roleNames = roleNames;
         roles = new Role[roleNames.length];
         roleAndID = mcdb.roleAndID;
@@ -93,7 +93,7 @@ public class JavacordStart {
 
         try {
             if (api.getServerById(mcdb.serverID).isPresent())
-            discordServer = api.getServerById(mcdb.serverID).get();
+                discordServer = api.getServerById(mcdb.serverID).get();
             mcdb.log("Connected to " + discordServer.getName() + " Discord Server!");
         } catch (Exception e) {
             mcdb.warn("Server not Found! Please enter a valid Server ID in config.yml and reload the plugin.");
@@ -192,6 +192,7 @@ public class JavacordStart {
             users++;
         }
         mcdb.log(role.getName() + " : " + users);
+
         return users;
     }
 

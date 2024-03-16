@@ -1,9 +1,9 @@
-package com.Wcash.commands;
+package me.wcash.mcdbridge.commands;
 
-import com.Wcash.JavacordStart;
-import com.Wcash.MCDBridge;
-import com.Wcash.database.Database;
-import com.Wcash.discordlisteners.LinkListener;
+import me.wcash.mcdbridge.JavacordStart;
+import me.wcash.mcdbridge.MCDBridge;
+import me.wcash.mcdbridge.database.Database;
+import me.wcash.mcdbridge.listeners.discord.LinkListener;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;

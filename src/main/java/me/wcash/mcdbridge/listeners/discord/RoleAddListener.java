@@ -1,7 +1,7 @@
-package com.Wcash.discordlisteners;
+package me.wcash.mcdbridge.listeners.discord;
 
-import com.Wcash.MCDBridge;
-import com.Wcash.database.Database;
+import me.wcash.mcdbridge.MCDBridge;
+import me.wcash.mcdbridge.database.Database;
 import org.bukkit.Bukkit;
 import org.bukkit.command.ConsoleCommandSender;
 import org.javacord.api.entity.channel.TextChannel;

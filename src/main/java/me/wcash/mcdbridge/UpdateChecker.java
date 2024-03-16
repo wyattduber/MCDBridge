@@ -1,4 +1,4 @@
-package com.Wcash;
+package me.wcash.mcdbridge;
 
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -30,5 +30,4 @@ public class UpdateChecker {
             }
         });
     }
-
 }

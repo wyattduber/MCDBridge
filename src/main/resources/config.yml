@@ -29,6 +29,3 @@ exampleRole2:
   remove-commands:
     - "example command 1"
     - "example command 2"
-
-
-

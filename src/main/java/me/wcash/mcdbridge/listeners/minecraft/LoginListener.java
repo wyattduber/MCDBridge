@@ -1,8 +1,8 @@
-package com.Wcash.mclisteners;
+package me.wcash.mcdbridge.listeners.minecraft;
 
-import com.Wcash.JavacordStart;
-import com.Wcash.MCDBridge;
-import com.Wcash.database.Database;
+import me.wcash.mcdbridge.JavacordStart;
+import me.wcash.mcdbridge.MCDBridge;
+import me.wcash.mcdbridge.database.Database;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;

@@ -1,8 +1,8 @@
-package com.Wcash.discordlisteners;
+package me.wcash.mcdbridge.listeners.discord;
 
-import com.Wcash.JavacordStart;
-import com.Wcash.MCDBridge;
-import com.Wcash.database.Database;
+import me.wcash.mcdbridge.JavacordStart;
+import me.wcash.mcdbridge.MCDBridge;
+import me.wcash.mcdbridge.database.Database;
 import org.bukkit.entity.Player;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
