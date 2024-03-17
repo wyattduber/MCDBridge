@@ -24,7 +24,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.logging.Level;
@@ -78,9 +78,10 @@ public class MCDBridge extends JavaPlugin {
         try {
             db = new Database("mcdb.sqlite.db");
             log("Database Found! Path is " + db.getDbPath());
-        } catch (Exception e) {
-            error("Error setting up database! Contact the developer if you cannot fix this issue. Stack Trace:");
-            error(e.getMessage());
+        } catch (SQLException e) {
+            error("Error setting up database! Is there permissions issue preventing the database file creation?");
+            error("Exception Message:" + e.getMessage());
+            error("SQL State: " + e.getSQLState());
         }
 
         /* Config Parsing */
@@ -132,6 +133,16 @@ public class MCDBridge extends JavaPlugin {
         if (useChatStream) {
             PlayerQuitEvent.getHandlerList().unregister(this);
             AsyncChatEvent.getHandlerList().unregister(this);
+        }
+
+        /* Reload database if it's gone */
+        try {
+            if (!db.testConnection())
+                if (db.getDbPath().isEmpty() || db.getDbPath().isBlank() || db.getDbPath() == null) new Database("mcdbridge.sqlite.db");
+        } catch (SQLException e) {
+            error("Error setting up database! Is there permissions issue preventing the database file creation? View the following error message:");
+            error("Error Message: " + e.getMessage());
+            error("SQL State: " + e.getSQLState());
         }
 
         if (parseConfig()) {

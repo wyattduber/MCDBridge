@@ -24,21 +24,16 @@ public class Database {
      * Constructor; Builds a new database object
      * @param dbName The name of the database; should be user-supplied. If it exists, a connection will be made. If it does not exist, it will be created and initialized
      */
-    public Database(String dbName) {
+    public Database(String dbName) throws SQLException {
         mcdb = MCDBridge.getPlugin();
-        try {
-            Plugin plugin = MCDBridge.getPlugin();
-            dbPath = (plugin.getDataFolder() + "/" + dbName);
-            dbPath = "jdbc:sqlite:" + dbPath;
-            dbcon = DriverManager.getConnection(dbPath);
+        Plugin plugin = MCDBridge.getPlugin();
+        dbPath = (plugin.getDataFolder() + "/" + dbName);
+        dbPath = "jdbc:sqlite:" + dbPath;
+        dbcon = DriverManager.getConnection(dbPath);
 
-            // Check if the table exists and update its structure if necessary
-            updateTableStructure("link",
-                    "CREATE TABLE IF NOT EXISTS link(minecraftid TEXT NOT NULL, discordid TEXT NOT NULL, username TEXT NOT NULL)");
-
-        } catch (SQLException e) {
-            MCDBridge.getPlugin().error("Error while setting up database! Plugin will not save data!");
-        }
+        // Check if the table exists and update its structure if necessary
+        updateTableStructure("link",
+                "CREATE TABLE IF NOT EXISTS link(minecraftid TEXT NOT NULL, discordid TEXT NOT NULL, username TEXT NOT NULL)");
     }
 
     /**
