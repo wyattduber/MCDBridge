@@ -4,6 +4,8 @@ import me.wcash.mcdbridge.MCDBridge;
 import org.bukkit.plugin.Plugin;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -29,8 +31,11 @@ public class Database {
             dbPath = (plugin.getDataFolder() + "/" + dbName);
             dbPath = "jdbc:sqlite:" + dbPath;
             dbcon = DriverManager.getConnection(dbPath);
-            PreparedStatement statement = dbcon.prepareStatement("CREATE TABLE IF NOT EXISTS link(minecraftid TEXT NOT NULL, discordid TEXT NOT NULL, username TEXT NOT NULL)");
-            statement.execute();
+
+            // Check if the table exists and update its structure if necessary
+            updateTableStructure("link",
+                    "CREATE TABLE IF NOT EXISTS link(minecraftid TEXT NOT NULL, discordid TEXT NOT NULL, username TEXT NOT NULL)");
+
         } catch (SQLException e) {
             MCDBridge.getPlugin().error("Error while setting up database! Plugin will not save data!");
         }
@@ -42,6 +47,20 @@ public class Database {
      */
     public String getDbPath() {
         return dbPath;
+    }
+
+    /**
+     * Accessor; Returns the SQL database connection;
+     * @return connection to the SQLite DB
+     */
+    public boolean testConnection() {
+        try {
+            PreparedStatement stmt = dbcon.prepareStatement("SELECT totalVotes FROM streaks");
+            stmt.executeQuery();
+            return true;
+        } catch (SQLException e) {
+            return false;
+        }
     }
 
     /**
@@ -175,6 +194,56 @@ public class Database {
         } catch (SQLException e) {
             mcdb.error("Error removing link from database! Stack Trace:");
             mcdb.error(e.getMessage());
+        }
+    }
+
+    /* Private Methods */
+
+    private void updateTableStructure(String tableName, String createTableQuery) throws SQLException {
+        DatabaseMetaData meta = dbcon.getMetaData();
+        ResultSet rs = meta.getTables(null, null, tableName, null);
+
+        if (rs.next()) {
+            // Table exists
+            ResultSet columns = meta.getColumns(null, null, tableName, null);
+            List<String> existingColumns = new ArrayList<>();
+
+            while (columns.next()) {
+                existingColumns.add(columns.getString("COLUMN_NAME"));
+            }
+
+            // Check for columns to add
+            try (Statement stmt = dbcon.createStatement()) {
+                String[] createTableParts = createTableQuery.split("\\(");
+                String columnsPart = createTableParts[1];
+                columnsPart = columnsPart.substring(0, columnsPart.length() - 1); // Remove trailing ')'
+                String[] requiredColumns = columnsPart.split(",");
+
+                for (String requiredColumn : requiredColumns) {
+                    requiredColumn = requiredColumn.trim().split("\\s+")[0]; // Get only the column name
+                    if (!existingColumns.contains(requiredColumn)) {
+                        // Column doesn't exist, add it
+                        stmt.executeUpdate("ALTER TABLE " + tableName + " ADD COLUMN " + requiredColumn);
+                        if (mcdb.debugMode) mcdb.debug("Added column '" + requiredColumn + "' to table '" + tableName + "'.");
+                    }
+                }
+
+                // Check for columns to remove
+                for (String existingColumn : existingColumns) {
+                    if (!createTableQuery.contains(existingColumn)) {
+                        // Column exists in the table but not in the required structure, remove it
+                        stmt.executeUpdate("ALTER TABLE " + tableName + " DROP COLUMN " + existingColumn);
+                        if (mcdb.debugMode) mcdb.debug("Removed column '" + existingColumn + "' from table '" + tableName + "'.");
+                    }
+                }
+            }
+        } else {
+            // Table does not exist, create it
+            if (mcdb.debugMode) mcdb.debug("Creating table '" + tableName + "'...");
+            try (Statement stmt = dbcon.createStatement()) {
+                stmt.executeUpdate(createTableQuery);
+                if (mcdb.debugMode) mcdb.debug("Table '" + tableName + "' created successfully.");
+            }
         }
     }
 
