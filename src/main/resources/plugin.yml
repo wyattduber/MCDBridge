@@ -19,6 +19,9 @@ permissions:
     children:
       mcdb.reload: true
       mcdb.update: true
+      mcdb.command.reload: true
+      mcdb.command.retrolink: true
+      mcdb.command.link: true
   mcdb.command.reload:
     description: Allows to reload the plugin and config files
     default: op

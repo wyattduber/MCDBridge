@@ -3,14 +3,15 @@ This is a plugin that can run commands on a Minecraft server when a specified ro
 
 # Current Features
 
-• Set up an Arbitrary Amount of Discord Roles!
-• Each Role has an Arbitrary Amount of Commands to run when the Role is Added and Removed!
-• Built-in verification system through discord and minecraft to prevent users registering other accounts
+- Set up an Arbitrary Amount of Discord Roles!
+- Each Role has an Arbitrary Amount of Commands to run when the Role is Added and Removed!
+- Built-in verification system through discord and minecraft to prevent users registering other accounts
 
 And that's it.... for now.
 
-This plugin is only in the early stages of beta, and I am looking to expand it's features as I progress.
+This plugin is only in the early stages of beta, and I am looking to expand its features as I progress.
 This is my first attempt at a Minecraft plugin, and it seems to be working for what it's currently intended for.
+I'm open to any suggestions, please post a GitHub issue.
 
 # How to set up
 
@@ -27,12 +28,14 @@ Here's an example:
 # Config Example
 
 ```yml
+debug: false
+
 bot-token: "BOTTOKEN"
 server-id: "000000000000000000"
 
 roles:
  - patreon
-  - nitro
+ - nitro
 
 patreon:
   role-id: "000000000000000000"
@@ -66,3 +69,20 @@ nitro:
 5. When the role is removed, the plugin will automatically run the role-remove commands.
 
 6. Done!
+
+# Commands
+`<>` = Required Argument
+`()` = Optional Argument
+
+- `/mcdb reload` - Reloads the configuration file.
+- `/mcdb link <discord-username>` - Initiate the linking process.
+- `/mcdb unlink` - Unlink your account from the discord bot.
+- `/mcdb retroLink (discord-username) (role-name)` - Retroactively send link requests to all users in a role that existed before plugin installation (or if a role existed before being added as a rewarded role on minecraft). Can also be done on a single player.
+
+# Permissions
+
+- `mcdb.update` - Allows the user to be notified if there is a plugin update available.
+- `mcdb.command.link` - Allows the user to use the `/mcdb link` command.
+- `mcdb.command.unlink` - Allows the user to use the `/mcdb unlink` command.
+- `mcdb.command.retroLink` - Allows the user to use the `/mcdb retroLink` command.
+- `mcdb.command.reload` - Allows the user to use the `/mcdb reload` command.
