@@ -43,7 +43,8 @@ public class RoleRemoveListener implements UserRoleRemoveListener {
             db.removeLink(roleEvent.getUser().getId());
             runCommands(roleEvent.getRole());
         } catch (Exception e) {
-            e.printStackTrace();
+            mcdb.error("Error removing role from user: " + username + ". Stack Trace:");
+            mcdb.error(e.getMessage());
         }
     }
 

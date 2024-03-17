@@ -1,3 +1,5 @@
+debug: false
+
 bot-token: "BOTTOKEN"
 server-id: "000000000000000000"
 

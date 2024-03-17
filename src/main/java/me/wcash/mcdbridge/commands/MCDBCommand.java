@@ -1,9 +1,9 @@
 package me.wcash.mcdbridge.commands;
 
-import me.wcash.mcdbridge.JavacordStart;
+import me.wcash.mcdbridge.javacord.JavacordHelper;
 import me.wcash.mcdbridge.MCDBridge;
 import me.wcash.mcdbridge.database.Database;
-import me.wcash.mcdbridge.listeners.discord.LinkListener;
+import me.wcash.mcdbridge.listeners.discord.DMListener;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -12,30 +12,25 @@ import org.bukkit.entity.Player;
 import org.javacord.api.entity.channel.TextChannel;
 import org.javacord.api.entity.message.MessageBuilder;
 import org.javacord.api.entity.user.User;
-
-
-
-import java.util.concurrent.ExecutionException;
+import org.jetbrains.annotations.NotNull;
 
 public class MCDBCommand implements CommandExecutor {
 
     private final MCDBridge mcdb = MCDBridge.getPlugin();
-    private final JavacordStart js;
+    private final JavacordHelper js;
     private TextChannel pmChannel;
-    private int i = 0;
 
     public MCDBCommand() {
         js = mcdb.js;
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, String[] args) {
         if (args.length > 0) {
-            if (sender instanceof Player) {
-                Player player = (Player) sender;
+            if (sender instanceof Player player) {
                 if (args[0].equalsIgnoreCase("reload")) {
                     mcdb.reload();
-                    player.sendMessage("§f[§9MCDBridge§f] Configuration Reloaded!");
+                    mcdb.sendMessage(player, "&fConfiguration Reloaded!");
                     return true;
                 } else if (args[0].equalsIgnoreCase("retrolink")) {
                     if (args.length == 1) {
@@ -52,7 +47,7 @@ public class MCDBCommand implements CommandExecutor {
                     unlink(player);
                     return true;
                 } else {
-                    player.sendMessage("§f[§9MCDBridge§f]§c Command not Found!");
+                    mcdb.sendMessage(player, "&cCommand not Found!");
                     return true;
                 }
             } else if (sender instanceof ConsoleCommandSender) {
@@ -78,7 +73,7 @@ public class MCDBCommand implements CommandExecutor {
     private void startLinking(Player player, String discName) {
         Database db = MCDBridge.getDatabase();
         if (db.doesEntryExist(player.getUniqueId())) {
-            player.sendMessage("§f[§9MCDBridge§f]§c Account Already Linked!");
+            mcdb.sendMessage(player,"&cAccount Already Linked!");
             return;
         }
 
@@ -90,24 +85,26 @@ public class MCDBCommand implements CommandExecutor {
                         .append("\nSay \"yes\" to continue, or \"no\" if this was in error.")
                         .send(user).thenAccept(msg -> pmChannel = msg.getChannel()).join();
             } catch (Exception e) {
-                e.printStackTrace();
+                mcdb.error("Error sending message to user! Stack Trace:");
+                mcdb.error(e.getMessage());
             }
-            user.addUserAttachableListener(new LinkListener(pmChannel));
+            user.addUserAttachableListener(new DMListener(pmChannel));
         } catch (NullPointerException e) {
-            player.sendMessage("§f[§9MCDBridge§f]§c Player Not in Discord Server!");
-            e.printStackTrace();
+            mcdb.sendMessage(player, "&c Player Not in Discord Server!");
+            mcdb.error("Player not found in Discord Server! Stack Trace:");
+            mcdb.error(e.getMessage());
         }
-        player.sendMessage("§f[§9MCDBridge§f] Check your Discord PM's to continue!");
+        mcdb.sendMessage(player, "Check your Discord DM's to continue!");
     }
 
     public void unlink(Player player) {
         Database db = MCDBridge.getDatabase();
         if (!db.doesEntryExist(player.getUniqueId())) {
-            player.sendMessage("§f[§9MCDBridge§f]§c Account Not Linked!");
+            mcdb.sendMessage(player, "&cAccount Not Linked!");
             return;
         }
         db.removeLink(player.getUniqueId());
-        player.sendMessage("§f[§9MCDBridge§f] Account Successfully Unlinked!");
+        mcdb.sendMessage(player, "Account Successfully Unlinked!");
     }
 
 }

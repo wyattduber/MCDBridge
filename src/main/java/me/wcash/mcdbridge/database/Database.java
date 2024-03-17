@@ -1,7 +1,6 @@
 package me.wcash.mcdbridge.database;
 
 import me.wcash.mcdbridge.MCDBridge;
-import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 import java.sql.*;
@@ -17,7 +16,7 @@ public class Database {
 
     private String dbPath;
     private Connection dbcon;
-    private MCDBridge mcdb;
+    private final MCDBridge mcdb;
 
     /**
      * Constructor; Builds a new database object
@@ -27,13 +26,13 @@ public class Database {
         mcdb = MCDBridge.getPlugin();
         try {
             Plugin plugin = MCDBridge.getPlugin();
-            dbPath = (plugin.getDataFolder().toString() + "/" + dbName);
+            dbPath = (plugin.getDataFolder() + "/" + dbName);
             dbPath = "jdbc:sqlite:" + dbPath;
             dbcon = DriverManager.getConnection(dbPath);
             PreparedStatement statement = dbcon.prepareStatement("CREATE TABLE IF NOT EXISTS link(minecraftid TEXT NOT NULL, discordid TEXT NOT NULL, username TEXT NOT NULL)");
             statement.execute();
         } catch (SQLException e) {
-            MCDBridge.getPlugin().error("Error while setting up database! Plugin will not save data!");;
+            MCDBridge.getPlugin().error("Error while setting up database! Plugin will not save data!");
         }
     }
 
@@ -59,7 +58,8 @@ public class Database {
             stmt.setString(3, username);
             stmt.execute();
         } catch (SQLException e) {
-            e.printStackTrace();
+            mcdb.error("Error inserting link into database! Stack Trace:");
+            mcdb.error(e.getMessage());
         }
     }
 
@@ -75,7 +75,8 @@ public class Database {
             return username;
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            mcdb.error("Error getting username from database! Stack Trace:");
+            mcdb.error(e.getMessage());
             return null;
         }
 
@@ -90,7 +91,8 @@ public class Database {
             stmt.execute();
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            mcdb.error("Error updating username in database! Stack Trace:");
+            mcdb.error(e.getMessage());
         }
     }
 
@@ -114,24 +116,11 @@ public class Database {
             PreparedStatement stmt = dbcon.prepareStatement("SELECT username FROM link WHERE discordid=?");
             stmt.setString(1, Long.toString(discordID));
             rs = stmt.executeQuery();
-            String username = rs.getString("username");
 
-            return username;
+            return rs.getString("username");
         } catch (SQLException e) {
-            e.printStackTrace();
-            return "";
-        }
-    }
-
-    public String getDiscordId(UUID minecraftID) {
-        ResultSet rs;
-        try {
-            PreparedStatement stmt = dbcon.prepareStatement("SELECT discordid FROM link WHERE minecraftid=?");
-            stmt.setString(1, minecraftID.toString());
-            rs = stmt.executeQuery();
-            return rs.getString("discordid");
-        } catch (SQLException e) {
-            e.printStackTrace();
+            mcdb.error("Error getting username from database! Stack Trace:");
+            mcdb.error(e.getMessage());
             return "";
         }
     }
@@ -144,7 +133,8 @@ public class Database {
             rs = stmt.executeQuery();
             return rs.getString("minecraftid");
         } catch (SQLException e) {
-            e.printStackTrace();
+            mcdb.error("Error getting minecraftid from database! Stack Trace:");
+            mcdb.error(e.getMessage());
             return "";
         }
     }
@@ -158,7 +148,8 @@ public class Database {
 
             return rs.next();
         } catch (SQLException e) {
-            e.printStackTrace();
+            mcdb.error("Error checking if entry exists in database! Stack Trace:");
+            mcdb.error(e.getMessage());
             return false;
         }
     }
@@ -170,7 +161,8 @@ public class Database {
             stmt.execute();
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            mcdb.error("Error removing link from database! Stack Trace:");
+            mcdb.error(e.getMessage());
         }
     }
 
@@ -181,7 +173,8 @@ public class Database {
             stmt.execute();
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            mcdb.error("Error removing link from database! Stack Trace:");
+            mcdb.error(e.getMessage());
         }
     }
 

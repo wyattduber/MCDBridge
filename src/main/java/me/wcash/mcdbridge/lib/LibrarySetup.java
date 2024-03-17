@@ -1,6 +1,7 @@
 package me.wcash.mcdbridge.lib;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import me.wcash.mcdbridge.MCDBridge;
 import net.byteflux.libby.BukkitLibraryManager;
 import net.byteflux.libby.Library;
 
@@ -10,8 +11,8 @@ import java.util.List;
 
 public class LibrarySetup implements AbstractLibraryLoader<Library> {
 
-    private final BukkitLibraryManager bukkitLibraryManager = new BukkitLibraryManager(CashApp.getPlugin(CashApp.class));
-    private final CashApp ca = CashApp.getPlugin();
+    private final BukkitLibraryManager bukkitLibraryManager = new BukkitLibraryManager(MCDBridge.getPlugin(MCDBridge.class));
+    private final MCDBridge mcdb = MCDBridge.getPlugin();
 
     public List<Library> initLibraries() {
 
@@ -23,10 +24,10 @@ public class LibrarySetup implements AbstractLibraryLoader<Library> {
 
             for (LibraryObject libraryObject : objectMapper.readValue(jsonFile, LibraryObject[].class)) {
                 list.add(createLibrary(libraryObject));
-                if (ca.debugMode) ca.debug("Loaded " + libraryObject.artifactId() + " " + libraryObject.version() + " from " + libraryObject.groupId());
+                if (mcdb.debugMode) mcdb.debug("Loaded " + libraryObject.artifactId() + " " + libraryObject.version() + " from " + libraryObject.groupId());
             }
         } catch (IOException e) {
-            ca.error(e.getMessage());
+            mcdb.error(e.getMessage());
         }
 
         return list;
@@ -45,7 +46,7 @@ public class LibrarySetup implements AbstractLibraryLoader<Library> {
     }
 
     private File getAzimFile() throws IOException {
-        InputStream inputStream = ca.getResource("AzimDP.json");
+        InputStream inputStream = mcdb.getResource("AzimDP.json");
 
         // Create a temporary file
         File tempFile = File.createTempFile("temp", ".tmp");
@@ -58,6 +59,9 @@ public class LibrarySetup implements AbstractLibraryLoader<Library> {
             while ((bytesRead = inputStream.read(buffer)) != -1) {
                 outputStream.write(buffer, 0, bytesRead);
             }
+        } catch (AssertionError e) {
+            mcdb.error("Error creating temporary file! Stack Trace:");
+            mcdb.error(e.getMessage());
         }
 
         return tempFile;

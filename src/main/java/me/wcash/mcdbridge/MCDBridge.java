@@ -1,17 +1,21 @@
 package me.wcash.mcdbridge;
 
+import io.papermc.paper.event.player.AsyncChatEvent;
 import me.wcash.mcdbridge.commands.MCDBCommand;
+import me.wcash.mcdbridge.commands.tabcomplete.MCDBTabComplete;
 import me.wcash.mcdbridge.database.Database;
 import me.wcash.mcdbridge.javacord.JavacordHelper;
+import me.wcash.mcdbridge.lib.LibrarySetup;
 import me.wcash.mcdbridge.listeners.minecraft.ChatListener;
 import me.wcash.mcdbridge.listeners.minecraft.LoginListener;
 import net.byteflux.libby.BukkitLibraryManager;
 import me.wcash.mcdbridge.listeners.minecraft.LogoutListener;
 import net.luckperms.api.LuckPerms;
 import org.bukkit.Bukkit;
+import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.Plugin;
@@ -33,6 +37,7 @@ public class MCDBridge extends JavaPlugin {
     public PluginManager pluginManager;
     private static Database db;
     public static String[] versions = new String[2];
+    public boolean debugMode = false;
     public boolean usePex = false;
     public boolean useLuckPerms = false;
     public boolean changeNickOnLink;
@@ -55,8 +60,9 @@ public class MCDBridge extends JavaPlugin {
     @Override
     public void onEnable() {
 
-        /* Use Libby */
-        loadDependencies();
+        /* Load Dependencies */
+        LibrarySetup librarySetup = new LibrarySetup();
+        librarySetup.loadLibraries();
 
         /* Load and Initiate Configs */
         try {
@@ -64,7 +70,8 @@ public class MCDBridge extends JavaPlugin {
             config = getCustomConfig();
             saveCustomConfig();
         } catch (Exception e) {
-            error("Error setting up the config! Contact the developer if you cannot fix this issue");
+            error("Error setting up the config! Contact the developer if you cannot fix this issue. Stack Trace:");
+            error(e.getMessage());
         }
 
         /* Load the Database */
@@ -72,7 +79,8 @@ public class MCDBridge extends JavaPlugin {
             db = new Database("mcdb.sqlite.db");
             log("Database Found! Path is " + db.getDbPath());
         } catch (Exception e) {
-            error("Error setting up database! Contact the developer if you cannot fix this issue");
+            error("Error setting up database! Contact the developer if you cannot fix this issue. Stack Trace:");
+            error(e.getMessage());
         }
 
         /* Config Parsing */
@@ -92,8 +100,10 @@ public class MCDBridge extends JavaPlugin {
         /* Commands */
         try {
             Objects.requireNonNull(this.getCommand("mcdb")).setExecutor(new MCDBCommand());
+            Objects.requireNonNull(this.getCommand("mcdb")).setTabCompleter(new MCDBTabComplete());
         } catch (NullPointerException e) {
-            e.printStackTrace();
+            error("Error setting up commands! Contact the developer if you cannot fix this issue. Stack Trace:");
+            error(e.getMessage());
         }
 
         if (useChatStream) {
@@ -113,18 +123,6 @@ public class MCDBridge extends JavaPlugin {
         }
     }
 
-    public void loadDependencies() {
-        BukkitLibraryManager manager = new BukkitLibraryManager(this); //depends on the server core you are using
-        manager.addMavenCentral(); //there are also methods for other repositories
-        manager.fromGeneratedResource(this.getResource("AzimDP.json")).forEach(library->{
-            try {
-                manager.loadLibrary(library);
-            }catch(RuntimeException e) { // in case some of the libraries cant be found or dont have .jar file or etc
-                getLogger().info("Skipping download of\""+library+"\", it either doesnt exist or has no .jar file");
-            }
-        });
-    }
-
     public void reload() {
         reloadCustomConfig();
         config = getCustomConfig();
@@ -133,7 +131,7 @@ public class MCDBridge extends JavaPlugin {
         PlayerJoinEvent.getHandlerList().unregister(this);
         if (useChatStream) {
             PlayerQuitEvent.getHandlerList().unregister(this);
-            AsyncPlayerChatEvent.getHandlerList().unregister(this);
+            AsyncChatEvent.getHandlerList().unregister(this);
         }
 
         if (parseConfig()) {
@@ -156,16 +154,17 @@ public class MCDBridge extends JavaPlugin {
         try {
             new UpdateChecker(this, 88409).getVersion(version -> {
                 // Initializes Login Listener when no Updates
-                if (!this.getDescription().getVersion().equalsIgnoreCase(version)) {
+                if (!this.getPluginMeta().getVersion().equalsIgnoreCase(version)) {
                     versions[0] = version;
-                    versions[1] = this.getDescription().getVersion();
+                    versions[1] = this.getPluginMeta().getVersion();
                     getServer().getPluginManager().registerEvents(new LoginListener(true, versions), this);
                 } else {
                     getServer().getPluginManager().registerEvents(new LoginListener(false, versions), this);
                 }
             });
         } catch (Exception e) {
-            e.printStackTrace();
+            error("Error initializing Update Checker! Contact the developer if you cannot fix this issue. Stack Trace:");
+            error(e.getMessage());
         }
         log("Minecraft Listeners Loaded!");
     }
@@ -197,17 +196,18 @@ public class MCDBridge extends JavaPlugin {
     }
 
     public Plugin getPermissionsPlugin(PluginManager pluginManager) {
-
         try {
             permissionsPlugin = pluginManager.getPlugin("PermissionsEx");
+            assert permissionsPlugin != null;
             if (permissionsPlugin.isEnabled() && getConfigBool("chatstream-use-permission-groups")) {
                 usePex = true;
                 useLuckPerms = false;
                 log("PermissionsEx Detected! Hooking Permissions");
             }
-        } catch (NullPointerException e) {
+        } catch (AssertionError | NullPointerException e) {
             try {
                 permissionsPlugin = pluginManager.getPlugin("LuckPerms");
+                assert permissionsPlugin != null;
                 if (permissionsPlugin.isEnabled() && getConfigBool("chatstream-use-permission-groups")) {
                     RegisteredServiceProvider<LuckPerms> provider = Bukkit.getServicesManager().getRegistration(LuckPerms.class);
                     if (provider != null) {
@@ -217,7 +217,7 @@ public class MCDBridge extends JavaPlugin {
                     usePex = false;
                     log("LuckPerms Detected! Hooking Permissions");
                 }
-            } catch (NullPointerException f) {
+            } catch (AssertionError | NullPointerException f) {
                 log("No permissions plugin found!");
             }
         }
@@ -244,7 +244,7 @@ public class MCDBridge extends JavaPlugin {
             }
         } catch (Exception e) {
             saveDefaultConfig();
-            error("Error parsing roles! Make sure the config.yml is correct and reload the plugin.");
+            error("Error parsing roles! Make sure the config.yml is correct and reload the plugin. Stack Trace:");
         }
     }
 
@@ -284,7 +284,8 @@ public class MCDBridge extends JavaPlugin {
         try {
             defConfigStream = new InputStreamReader(Objects.requireNonNull(this.getResource("config.yml")), StandardCharsets.UTF_8);
         } catch (Exception e) {
-            e.printStackTrace();
+            error("Error loading default config! Contact the developer if you cannot fix this issue. Stack Trace:");
+            error(e.getMessage());
         }
         if (defConfigStream != null) {
             YamlConfiguration defConfig = YamlConfiguration.loadConfiguration(defConfigStream);
@@ -332,4 +333,57 @@ public class MCDBridge extends JavaPlugin {
         this.getLogger().log(Level.SEVERE, message);
     }
 
+    public void debug(String message) {
+        this.getLogger().log(Level.FINE, message);
+    }
+
+    public void sendMessage(CommandSender sender, String message) {
+        if (sender instanceof Player player) {
+            player.sendMessage("§f[§9MCDBridge§f] " + replaceColors(message));
+        } else {
+            log(message);
+        }
+    }
+
+    /**
+     * The escape sequence for minecraft special chat codes
+     */
+    public static final char ESCAPE = '§';
+
+    /**
+     * Replace all the color codes (prepended with &) with the corresponding color code.
+     * This uses raw char arrays, so it can be considered to be extremely fast.
+     *
+     * @param text the text to replace the color codes in
+     * @return string with color codes replaced
+     */
+    public static String replaceColors(String text) {
+        char[] chrarray = text.toCharArray();
+
+        for (int index = 0; index < chrarray.length; index ++) {
+            char chr = chrarray[index];
+
+            // Ignore anything that we don't want
+            if (chr != '&') {
+                continue;
+            }
+
+            if ((index + 1) == chrarray.length) {
+                // we are at the end of the array
+                break;
+            }
+
+            // get the forward char
+            char forward = chrarray[index + 1];
+
+            // is it in range?
+            if ((forward >= '0' && forward <= '9') || (forward >= 'a' && forward <= 'f') || (forward >= 'k' && forward <= 'r')) {
+                // It is! Replace the char we are at now with the escape sequence
+                chrarray[index] = ESCAPE;
+            }
+        }
+
+        // Rebuild the string and return it
+        return new String(chrarray);
+    }
 }

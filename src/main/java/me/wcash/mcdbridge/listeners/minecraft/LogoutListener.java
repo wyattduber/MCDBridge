@@ -1,6 +1,5 @@
 package me.wcash.mcdbridge.listeners.minecraft;
 
-import me.wcash.mcdbridge.JavacordStart;
 import me.wcash.mcdbridge.MCDBridge;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;

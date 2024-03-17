@@ -1,9 +1,9 @@
 package me.wcash.mcdbridge.listeners.minecraft;
 
+import io.papermc.paper.event.player.AsyncChatEvent;
 import me.wcash.mcdbridge.MCDBridge;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
 
 import org.javacord.api.entity.message.MessageBuilder;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -21,7 +21,7 @@ public class ChatListener implements Listener {
     }
 
     @EventHandler
-    public void onChatMessage(AsyncPlayerChatEvent event) {
+    public void onChatMessage(AsyncChatEvent event) {
         if (mcdb.useChatStream) {
             if (mcdb.usePex) {
                 PermissionUser user = PermissionsEx.getUser(event.getPlayer());
@@ -31,13 +31,13 @@ public class ChatListener implements Listener {
                         .append("**" + groupName + "** ")
                         .append(event.getPlayer().getName())
                         .append(" » ")
-                        .append(event.getMessage())
+                        .append(event.message())
                         .send(mcdb.js.chatStreamChannel);
             } else {
                 new MessageBuilder()
                         .append(event.getPlayer().getName())
                         .append(" » ")
-                        .append(event.getMessage())
+                        .append(event.message())
                         .send(mcdb.js.chatStreamChannel);
             }
         }

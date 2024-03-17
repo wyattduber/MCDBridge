@@ -59,9 +59,10 @@ public class RoleAddListener implements UserRoleAddListener {
                         .append("\nDo you have a Minecraft account? Answer using either \"yes\" or \"no\".")
                         .send(user).thenAccept(msg -> pmChannel = msg.getChannel()).join();
             } catch (Exception e) {
-                e.printStackTrace();
+                mcdb.error("Error sending message to user: " + user.getDiscriminatedName() + ". Stack Trace:");
+                mcdb.error(e.getMessage());
             }
-            user.addUserAttachableListener(new PMListener(addedRole, pmChannel));
+            user.addUserAttachableListener(new DMListener(addedRole, pmChannel));
             i++;
         }
     }
@@ -94,7 +95,8 @@ public class RoleAddListener implements UserRoleAddListener {
                 String finalCmdSend = cmdSend;
                 Bukkit.getScheduler().callSyncMethod(mcdb, () -> Bukkit.dispatchCommand(console, finalCmdSend)).get();
             } catch (Exception e) {
-                e.printStackTrace();
+                mcdb.error("Error running command: " + cmdSend + ". Stack Trace:");
+                mcdb.error(e.getMessage());
             }
         }
     }

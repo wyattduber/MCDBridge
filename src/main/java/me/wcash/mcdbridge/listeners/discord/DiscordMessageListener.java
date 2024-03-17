@@ -1,8 +1,9 @@
 package me.wcash.mcdbridge.listeners.discord;
 
-import me.wcash.mcdbridge.JavacordStart;
+import me.wcash.mcdbridge.javacord.JavacordHelper;
 import me.wcash.mcdbridge.MCDBridge;
 import me.wcash.mcdbridge.database.Database;
+import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
@@ -25,7 +26,7 @@ public class DiscordMessageListener implements MessageCreateListener {
 
     @Override
     public void onMessageCreate(MessageCreateEvent event) {
-        JavacordStart js = mcdb.js;
+        JavacordHelper js = mcdb.js;
         Database db = MCDBridge.getDatabase();
         if (event.getChannel() != mcdb.js.chatStreamChannel || event.getMessageAuthor().isYourself()) return;
         String group = "";
@@ -59,7 +60,7 @@ public class DiscordMessageListener implements MessageCreateListener {
         messageFormat = messageFormat.replaceAll("%USER%", event.getMessageAuthor().getName());
         messageFormat = messageFormat.replaceAll("%MESSAGE%", event.getMessageContent());
 
-        mcdb.getServer().broadcastMessage(messageFormat);
+        mcdb.getServer().broadcast(Component.text(messageFormat));
 
     }
 

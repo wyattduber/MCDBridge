@@ -113,3 +113,6 @@ buildNumber.properties
 run/
 
 META-INF/
+
+# Local Jar Files (No Maven Repository)
+libs/

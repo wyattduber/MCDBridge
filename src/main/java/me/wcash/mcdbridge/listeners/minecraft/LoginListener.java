@@ -1,6 +1,6 @@
 package me.wcash.mcdbridge.listeners.minecraft;
 
-import me.wcash.mcdbridge.JavacordStart;
+import me.wcash.mcdbridge.javacord.JavacordHelper;
 import me.wcash.mcdbridge.MCDBridge;
 import me.wcash.mcdbridge.database.Database;
 import org.bukkit.event.EventHandler;
@@ -17,7 +17,7 @@ public final class LoginListener implements Listener {
     private final String[] versions;
     private final Database db = MCDBridge.getDatabase();
     private final MCDBridge mcdb;
-    private final JavacordStart js;
+    private final JavacordHelper js;
 
     public LoginListener(boolean updateRequired, String[] versions) {
         this.updateRequired = updateRequired;
@@ -50,5 +50,4 @@ public final class LoginListener implements Listener {
                     ).send(js.chatStreamChannel);
         }
     }
-
 }
