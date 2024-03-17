@@ -8,7 +8,6 @@ import me.wcash.mcdbridge.javacord.JavacordHelper;
 import me.wcash.mcdbridge.lib.LibrarySetup;
 import me.wcash.mcdbridge.listeners.minecraft.ChatListener;
 import me.wcash.mcdbridge.listeners.minecraft.LoginListener;
-import net.byteflux.libby.BukkitLibraryManager;
 import me.wcash.mcdbridge.listeners.minecraft.LogoutListener;
 import net.luckperms.api.LuckPerms;
 import org.bukkit.Bukkit;

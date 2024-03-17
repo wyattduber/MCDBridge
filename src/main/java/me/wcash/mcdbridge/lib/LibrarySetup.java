@@ -41,7 +41,7 @@ public class LibrarySetup implements AbstractLibraryLoader<Library> {
         initLibraries().forEach(bukkitLibraryManager::loadLibrary);
     }
 
-    public Library createLibrary(LibraryObject libraryObject) {
+    private Library createLibrary(LibraryObject libraryObject) {
         return Library.builder().groupId(libraryObject.groupId()).artifactId(libraryObject.artifactId()).version(libraryObject.version()).relocate(libraryObject.oldRelocation(), libraryObject.newRelocation()).build();
     }
 

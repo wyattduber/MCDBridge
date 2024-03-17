@@ -34,17 +34,24 @@ public class DiscordMessageListener implements MessageCreateListener {
         String role = "";
         User user = event.getMessageAuthor().asUser().get();
 
-        if (db.doesEntryExist(event.getMessageAuthor().getId())) {
-            Player player = mcdb.getServer().getPlayer(db.getUUID(event.getMessageAuthor().getId()));
-            if (mcdb.usePex) {
-                PermissionUser pexUser = PermissionsEx.getUser(player);
-                prefix = pexUser.getPrefix(player.getWorld().toString());
-                group = pexUser.getRankLadderGroup("default").toString();
-            } else if (mcdb.useLuckPerms) {
-                LuckPerms luckPerms = mcdb.lp;
-                net.luckperms.api.model.user.User luckPermsUser = luckPerms.getPlayerAdapter(Player.class).getUser(player);
-                group = luckPermsUser.getPrimaryGroup();
+        try {
+            if (db.doesEntryExist(event.getMessageAuthor().getId())) {
+                Player player = mcdb.getServer().getPlayer(db.getUUID(event.getMessageAuthor().getId()));
+                if (mcdb.usePex) {
+                    PermissionUser pexUser = PermissionsEx.getUser(player);
+                    assert player != null;
+                    prefix = pexUser.getPrefix(player.getWorld().toString());
+                    group = pexUser.getRankLadderGroup("default").toString();
+                } else if (mcdb.useLuckPerms) {
+                    LuckPerms luckPerms = mcdb.lp;
+                    assert player != null;
+                    net.luckperms.api.model.user.User luckPermsUser = luckPerms.getPlayerAdapter(Player.class).getUser(player);
+                    group = luckPermsUser.getPrimaryGroup();
+                }
             }
+        } catch (AssertionError e) {
+            mcdb.error("Error getting user data from database. Stack Trace:");
+            mcdb.error(e.getMessage());
         }
 
         try {
