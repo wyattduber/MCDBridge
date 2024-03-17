@@ -106,7 +106,7 @@ public class JavacordHelper {
                 mcdb.log("Role " + roles[i].getName() + " Loaded!");
             }
         } catch (Exception e) {
-            mcdb.warn("Invalid Role List! Please enter valid Role ID's in the config.yml and reload the plugin.");
+            mcdb.warn("One or more roles not found! Please enter valid Role ID's in the config.yml and reload the plugin.");
         }
 
         if (mcdb.useChatStream) {

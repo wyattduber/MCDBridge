@@ -24,6 +24,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.logging.Level;
@@ -139,9 +140,10 @@ public class MCDBridge extends JavaPlugin {
             initChatStream();
         } else {
             error("Config Not Properly Configured! Plugin will not function!");
+            return;
         }
 
-        if (parseConfig() || js == null) {
+        if (js == null) {
             js = new JavacordHelper(roleNames);
         } else {
             js.reload();
@@ -224,7 +226,6 @@ public class MCDBridge extends JavaPlugin {
     }
 
     private void parseRoles() {
-
         try {
             roleNames = new String[config.getStringList("roles").size()];
 
@@ -253,7 +254,7 @@ public class MCDBridge extends JavaPlugin {
         log("ChatStream enabled! Loading necessary config items");
         try {
             chatStreamID = getConfigString("chatstream-channel");
-            chatStreamMessageFormat = getConfigString("chatstream-message-format");
+            chatStreamMessageFormat = replaceColors(getConfigString("chatstream-message-format"));
         } catch (Exception e) {
             saveDefaultConfig();
             warn("Invalid Channel ID for ChatStream! Please enter a valid Channel ID in the config.yml and reload the plugin.");

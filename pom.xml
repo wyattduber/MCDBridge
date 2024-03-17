@@ -92,7 +92,7 @@
 
     <build>
         <defaultGoal>clean package</defaultGoal>
-        <finalName>CashApp-${project.version}</finalName>
+        <finalName>MCDBridge-${project.version}</finalName>
         <sourceDirectory>${basedir}/src/main/java</sourceDirectory>
         <resources>
             <resource>
