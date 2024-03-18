@@ -166,7 +166,7 @@ public class MCDBridge extends JavaPlugin {
         try {
             new UpdateChecker(this, 88409).getVersion(version -> {
                 // Initializes Login Listener when no Updates
-                if (!this.getPluginMeta().getVersion().equalsIgnoreCase(version)) {
+                if (compareVersions(this.getPluginMeta().getVersion(), version) < 0) {
                     versions[0] = version;
                     versions[1] = this.getPluginMeta().getVersion();
                     getServer().getPluginManager().registerEvents(new LoginListener(true, versions), this);
@@ -353,6 +353,33 @@ public class MCDBridge extends JavaPlugin {
             player.sendMessage("§f[§9MCDBridge§f] " + replaceColors(message));
         } else {
             log(message);
+        }
+    }
+
+    // Method to compare two versions numerically
+    private int compareVersions(String installedVersion, String newestVersion) {
+        String[] installedParts = installedVersion.split("\\.");
+        String[] newestParts = newestVersion.split("\\.");
+
+        int minLength = Math.min(installedParts.length, newestParts.length);
+        for (int i = 0; i < minLength; i++) {
+            int installedPart = Integer.parseInt(installedParts[i]);
+            int newestPart = Integer.parseInt(newestParts[i]);
+            if (installedPart < newestPart) {
+                return -1; // installed version is older
+            } else if (installedPart > newestPart) {
+                return 1; // installed version is newer
+            }
+        }
+
+        // If we reach here, versions are equal up to minLength
+        // So, if one version has more parts, it is considered newer
+        if (installedParts.length < newestParts.length) {
+            return -1; // installed version is older
+        } else if (installedParts.length > newestParts.length) {
+            return 1; // installed version is newer
+        } else {
+            return 0; // versions are exactly the same
         }
     }
 

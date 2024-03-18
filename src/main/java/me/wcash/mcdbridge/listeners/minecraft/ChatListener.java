@@ -2,6 +2,7 @@ package me.wcash.mcdbridge.listeners.minecraft;
 
 import io.papermc.paper.event.player.AsyncChatEvent;
 import me.wcash.mcdbridge.MCDBridge;
+import net.kyori.adventure.text.TextComponent;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
@@ -27,17 +28,20 @@ public class ChatListener implements Listener {
                 PermissionUser user = PermissionsEx.getUser(event.getPlayer());
                 String groupName = "";
                 try { groupName = user.getRankLadderGroup("default").getName(); } catch (NullPointerException ignored) {}
+
+                TextComponent message = (TextComponent) event.message();
                 new MessageBuilder()
                         .append("**" + groupName + "** ")
                         .append(event.getPlayer().getName())
                         .append(" » ")
-                        .append(event.message())
+                        .append(message)
                         .send(mcdb.js.chatStreamChannel);
             } else {
+                TextComponent message = (TextComponent) event.message();
                 new MessageBuilder()
                         .append(event.getPlayer().getName())
                         .append(" » ")
-                        .append(event.message())
+                        .append(message.content())
                         .send(mcdb.js.chatStreamChannel);
             }
         }

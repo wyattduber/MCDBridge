@@ -31,8 +31,12 @@ public final class LoginListener implements Listener {
 
         /* Check for Updates and send message to player with permission to see updates */
         if (updateRequired && (event.getPlayer().hasPermission("mcdb.update") || event.getPlayer().isOp())) {
-            event.getPlayer().sendMessage("[§9MCDBridge§f] Version §c" + versions[0] + " §favailable! You have §c" + versions[1] + ".");
+            event.getPlayer().sendMessage("Version &c" + versions[0] + "&favailable! You have &c" + versions[1] + ".");
+            event.getPlayer().sendMessage("Download it at: &9https://www.spigotmc.org/resources/mcdbridge-beta.88409/");
+
             mcdb.log("Version " + versions[0] + " available! You have " + versions[1] + ".");
+            mcdb.log("Download it at: https://www.spigotmc.org/resources/mcdbridge-beta.88409/");
+
         }
 
         /* Check if Username has changed since last login */
