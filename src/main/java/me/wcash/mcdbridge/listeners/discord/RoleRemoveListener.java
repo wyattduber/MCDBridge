@@ -1,7 +1,7 @@
-package com.Wcash.discordlisteners;
+package me.wcash.mcdbridge.listeners.discord;
 
-import com.Wcash.MCDBridge;
-import com.Wcash.database.Database;
+import me.wcash.mcdbridge.MCDBridge;
+import me.wcash.mcdbridge.database.Database;
 import org.javacord.api.entity.permission.Role;
 import org.javacord.api.event.server.role.UserRoleRemoveEvent;
 import org.javacord.api.listener.server.role.UserRoleRemoveListener;
@@ -43,7 +43,8 @@ public class RoleRemoveListener implements UserRoleRemoveListener {
             db.removeLink(roleEvent.getUser().getId());
             runCommands(roleEvent.getRole());
         } catch (Exception e) {
-            e.printStackTrace();
+            mcdb.error("Error removing role from user: " + username + ". Stack Trace:");
+            mcdb.error(e.getMessage());
         }
     }
 

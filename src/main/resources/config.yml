@@ -1,3 +1,5 @@
+debug: false
+
 bot-token: "BOTTOKEN"
 server-id: "000000000000000000"
 
@@ -29,6 +31,3 @@ exampleRole2:
   remove-commands:
     - "example command 1"
     - "example command 2"
-
-
-

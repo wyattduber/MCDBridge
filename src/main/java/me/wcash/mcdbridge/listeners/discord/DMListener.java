@@ -1,8 +1,8 @@
-package com.Wcash.discordlisteners;
+package me.wcash.mcdbridge.listeners.discord;
 
-import com.Wcash.JavacordStart;
-import com.Wcash.MCDBridge;
-import com.Wcash.database.Database;
+import me.wcash.mcdbridge.javacord.JavacordHelper;
+import me.wcash.mcdbridge.MCDBridge;
+import me.wcash.mcdbridge.database.Database;
 import org.bukkit.entity.Player;
 import org.javacord.api.entity.channel.TextChannel;
 import org.javacord.api.entity.message.MessageBuilder;
@@ -16,7 +16,7 @@ import java.util.HashMap;
 import java.util.Objects;
 import java.util.Random;
 
-public class PMListener implements MessageCreateListener {
+public class DMListener implements MessageCreateListener {
 
     private final MCDBridge mcdb;
     private final org.bukkit.Server server;
@@ -25,13 +25,12 @@ public class PMListener implements MessageCreateListener {
     private int step;
     private Player player;
     private final String[] roleNames;
-    private final Role addedRole;
+    private Role addedRole;
     private final HashMap<String, String[]> addCommands;
     private final TextChannel channel;
     private boolean resent = false;
-    private JavacordStart js;
 
-    public PMListener(Role addedRole, TextChannel channel) {
+    public DMListener(Role addedRole, TextChannel channel) {
         mcdb = MCDBridge.getPlugin();
         server = mcdb.getServer();
         db = MCDBridge.getDatabase();
@@ -42,9 +41,19 @@ public class PMListener implements MessageCreateListener {
         step = 1;
     }
 
+    public DMListener(TextChannel channel) {
+        mcdb = MCDBridge.getPlugin();
+        server = mcdb.getServer();
+        db = MCDBridge.getDatabase();
+        roleNames = mcdb.roleNames;
+        addCommands = mcdb.addCommands;
+        this.channel = channel;
+        step = 1;
+    }
+
     @Override
     public void onMessageCreate(MessageCreateEvent event) {
-        js = mcdb.js;
+        JavacordHelper js = mcdb.js;
         Server discordServer = js.api.getServerById(mcdb.serverID).get();
         User user = event.getMessageAuthor().asUser().get();
 
@@ -91,28 +100,31 @@ public class PMListener implements MessageCreateListener {
                     resent = false;
                 }
             } catch (NullPointerException e) {
-                e.printStackTrace();
+                mcdb.error("Error linking user: " + user.getDiscriminatedName() + ". Stack Trace:");
+                mcdb.error(e.getMessage());
                 event.getChannel().sendMessage("Player Not Found! Make sure that you are logged into the server and that your username was typed in correctly Usernames are Case-Sensitive!");
             }
         } else if (step == 3) {
             try {
                 if (event.getMessageContent().equals(String.format("%06d", randInt)) && !resent) {
                     db.insertLink(event.getMessageAuthor().getId(), player.getName(), player.getUniqueId());
-                    RoleAddListener.runCommands(mcdb, roleNames, addCommands, addedRole, player.getName());
+                    if (mcdb.changeNickOnLink) { discordServer.updateNickname(user, player.getName()).join(); }
+                    if (addedRole != null) RoleAddListener.runCommands(mcdb, roleNames, addCommands, addedRole, player.getName());
                     event.getChannel().sendMessage("Rewards Given! Message one of the online administrators if this process had any errors or you still haven't received your rewards.");
-                    player.sendMessage("§f[§9MCDBridge§f] Rewards Received!");
+                    mcdb.sendMessage(player, "YRewards Received!");
                     step = 4;
                     RoleAddListener.removeListener(user, this);
                 } else if (resent && event.getMessageContent().equalsIgnoreCase("resend")) {
                     randInt = Integer.parseInt(getRandomNumber());
-                    player.sendMessage("§f[§9MCDBridge§f] Your code is: §c" + randInt);
+                    mcdb.sendMessage(player, "Your code is: §c" + randInt);
                     event.getChannel().sendMessage("New Code Sent.");
                     step = 2;
                 } else if (!resent && !event.getMessageContent().equals(String.format("%06d", randInt))) {
                     event.getChannel().sendMessage("Code does not match! Make sure you've entered the right code. Say \"resend\" if you need a new code.");
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                mcdb.error("Error linking user: " + user.getDiscriminatedName() + ". Stack Trace:");
+                mcdb.error(e.getMessage());
                 event.getChannel().sendMessage("Something went wrong! Please contact a server administrator");
             }
         }

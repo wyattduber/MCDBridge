@@ -1,9 +1,10 @@
-package com.Wcash.mclisteners;
+package me.wcash.mcdbridge.listeners.minecraft;
 
-import com.Wcash.MCDBridge;
+import io.papermc.paper.event.player.AsyncChatEvent;
+import me.wcash.mcdbridge.MCDBridge;
+import net.kyori.adventure.text.TextComponent;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
 
 import org.javacord.api.entity.message.MessageBuilder;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
@@ -21,24 +22,27 @@ public class ChatListener implements Listener {
     }
 
     @EventHandler
-    public void onChatMessage(AsyncPlayerChatEvent event) {
+    public void onChatMessage(AsyncChatEvent event) {
         if (mcdb.useChatStream) {
             if (mcdb.usePex) {
                 PermissionUser user = PermissionsEx.getUser(event.getPlayer());
                 String groupName = "";
                 try { groupName = user.getRankLadderGroup("default").getName(); } catch (NullPointerException ignored) {}
+
+                TextComponent message = (TextComponent) event.message();
                 new MessageBuilder()
                         .append("**" + groupName + "** ")
                         .append(event.getPlayer().getName())
                         .append(" » ")
-                        .append(event.getMessage())
+                        .append(message)
                         .send(mcdb.js.chatStreamChannel);
             } else {
+                TextComponent message = (TextComponent) event.message();
                 new MessageBuilder()
                         .append(event.getPlayer().getName())
                         .append(" » ")
-                        .append(event.getMessage())
-                    .send(mcdb.js.chatStreamChannel);
+                        .append(message.content())
+                        .send(mcdb.js.chatStreamChannel);
             }
         }
     }

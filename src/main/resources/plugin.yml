@@ -1,9 +1,9 @@
 name: MCDBridge
-version: 1.1.0
+version: '${project.version}'
+main: me.wcash.mcdbridge.MCDBridge
+api-version: '1.20'
 author: Wcash
-main: com.Wcash.MCDBridge
-api-version: 1.16
-website: https://www.github.com/DoubleYouCash/MCDBridge
+website: https://www.github.com/wyattduber/MCDBridge
 softdepend: [PermissionsEx, LuckPerms]
 
 commands:
@@ -19,6 +19,9 @@ permissions:
     children:
       mcdb.reload: true
       mcdb.update: true
+      mcdb.command.reload: true
+      mcdb.command.retrolink: true
+      mcdb.command.link: true
   mcdb.command.reload:
     description: Allows to reload the plugin and config files
     default: op

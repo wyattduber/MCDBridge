@@ -1,8 +1,9 @@
-package com.Wcash.discordlisteners;
+package me.wcash.mcdbridge.listeners.discord;
 
-import com.Wcash.JavacordStart;
-import com.Wcash.MCDBridge;
-import com.Wcash.database.Database;
+import me.wcash.mcdbridge.javacord.JavacordHelper;
+import me.wcash.mcdbridge.MCDBridge;
+import me.wcash.mcdbridge.database.Database;
+import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
@@ -25,7 +26,7 @@ public class DiscordMessageListener implements MessageCreateListener {
 
     @Override
     public void onMessageCreate(MessageCreateEvent event) {
-        JavacordStart js = mcdb.js;
+        JavacordHelper js = mcdb.js;
         Database db = MCDBridge.getDatabase();
         if (event.getChannel() != mcdb.js.chatStreamChannel || event.getMessageAuthor().isYourself()) return;
         String group = "";
@@ -33,17 +34,24 @@ public class DiscordMessageListener implements MessageCreateListener {
         String role = "";
         User user = event.getMessageAuthor().asUser().get();
 
-        if (db.doesEntryExist(event.getMessageAuthor().getId())) {
-            Player player = mcdb.getServer().getPlayer(db.getUUID(event.getMessageAuthor().getId()));
-            if (mcdb.usePex) {
-                PermissionUser pexUser = PermissionsEx.getUser(player);
-                prefix = pexUser.getPrefix(player.getWorld().toString());
-                group = pexUser.getRankLadderGroup("default").toString();
-            } else if (mcdb.useLuckPerms) {
-                LuckPerms luckPerms = mcdb.lp;
-                net.luckperms.api.model.user.User luckPermsUser = luckPerms.getPlayerAdapter(Player.class).getUser(player);
-                group = luckPermsUser.getPrimaryGroup();
+        try {
+            if (db.doesEntryExist(event.getMessageAuthor().getId())) {
+                Player player = mcdb.getServer().getPlayer(db.getUUID(event.getMessageAuthor().getId()));
+                if (mcdb.usePex) {
+                    PermissionUser pexUser = PermissionsEx.getUser(player);
+                    assert player != null;
+                    prefix = pexUser.getPrefix(player.getWorld().toString());
+                    group = pexUser.getRankLadderGroup("default").toString();
+                } else if (mcdb.useLuckPerms) {
+                    LuckPerms luckPerms = mcdb.lp;
+                    assert player != null;
+                    net.luckperms.api.model.user.User luckPermsUser = luckPerms.getPlayerAdapter(Player.class).getUser(player);
+                    group = luckPermsUser.getPrimaryGroup();
+                }
             }
+        } catch (AssertionError e) {
+            mcdb.error("Error getting user data from database. Stack Trace:");
+            mcdb.error(e.getMessage());
         }
 
         try {
@@ -59,7 +67,7 @@ public class DiscordMessageListener implements MessageCreateListener {
         messageFormat = messageFormat.replaceAll("%USER%", event.getMessageAuthor().getName());
         messageFormat = messageFormat.replaceAll("%MESSAGE%", event.getMessageContent());
 
-        mcdb.getServer().broadcastMessage(messageFormat);
+        mcdb.getServer().broadcast(Component.text(messageFormat));
 
     }
 

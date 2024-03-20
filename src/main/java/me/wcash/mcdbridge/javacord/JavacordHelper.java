@@ -1,10 +1,11 @@
-package com.Wcash;
+package me.wcash.mcdbridge.javacord;
 
-import com.Wcash.database.Database;
-import com.Wcash.discordlisteners.DiscordMessageListener;
-import com.Wcash.discordlisteners.PMListener;
-import com.Wcash.discordlisteners.RoleAddListener;
-import com.Wcash.discordlisteners.RoleRemoveListener;
+import me.wcash.mcdbridge.MCDBridge;
+import me.wcash.mcdbridge.database.Database;
+import me.wcash.mcdbridge.listeners.discord.DiscordMessageListener;
+import me.wcash.mcdbridge.listeners.discord.DMListener;
+import me.wcash.mcdbridge.listeners.discord.RoleAddListener;
+import me.wcash.mcdbridge.listeners.discord.RoleRemoveListener;
 import org.bukkit.entity.Player;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.DiscordApiBuilder;
@@ -15,9 +16,9 @@ import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 
 import java.util.HashMap;
-import java.util.concurrent.ExecutionException;
+import java.util.NoSuchElementException;
 
-public class JavacordStart {
+public class JavacordHelper {
 
     public DiscordApi api;
     public Server discordServer;
@@ -26,7 +27,6 @@ public class JavacordStart {
     public DiscordMessageListener discordMessageListener;
     public Role[] roles;
     public TextChannel chatStreamChannel;
-
     private final MCDBridge mcdb = MCDBridge.getPlugin();
     private final String[] roleNames;
     private final HashMap<String, String> roleAndID;
@@ -34,7 +34,7 @@ public class JavacordStart {
     private TextChannel pmChannel;
     private final Database db;
 
-    public JavacordStart(String[] roleNames) {
+    public JavacordHelper(String[] roleNames) {
         this.roleNames = roleNames;
         roles = new Role[roleNames.length];
         roleAndID = mcdb.roleAndID;
@@ -93,7 +93,7 @@ public class JavacordStart {
 
         try {
             if (api.getServerById(mcdb.serverID).isPresent())
-            discordServer = api.getServerById(mcdb.serverID).get();
+                discordServer = api.getServerById(mcdb.serverID).get();
             mcdb.log("Connected to " + discordServer.getName() + " Discord Server!");
         } catch (Exception e) {
             mcdb.warn("Server not Found! Please enter a valid Server ID in config.yml and reload the plugin.");
@@ -106,7 +106,7 @@ public class JavacordStart {
                 mcdb.log("Role " + roles[i].getName() + " Loaded!");
             }
         } catch (Exception e) {
-            mcdb.warn("Invalid Role List! Please enter valid Role ID's in the config.yml and reload the plugin.");
+            mcdb.warn("One or more roles not found! Please enter valid Role ID's in the config.yml and reload the plugin.");
         }
 
         if (mcdb.useChatStream) {
@@ -130,14 +130,14 @@ public class JavacordStart {
             usersInRole = role.getUsers().toArray(usersInRole);
             if (usersInRole.length == 0) {
                 mcdb.warn("No users in" + role.getName() + " role!");
-                player.sendMessage("§f[§9MCDBridge§f] No users in " + role.getName() + " role!");
+                mcdb.sendMessage(player,"No users in " + role.getName() + " role!");
                 break;
             }
             users = getUsers(users, role, usersInRole);
-            player.sendMessage(role.getName() + ": " + users);
+            mcdb.sendMessage(player, role.getName() + ": " + users);
         }
         mcdb.log("Total: " + users);
-        player.sendMessage("Total: " + users);
+        mcdb.sendMessage(player,"Total: " + users);
     }
 
     public void retroLinkSingle(String discriminatedName, String roleName) {
@@ -145,20 +145,26 @@ public class JavacordStart {
             Role role = discordServer.getRoleById(roleAndID.get(roleName)).get();
             User user = api.getCachedUserByDiscriminatedName(discriminatedName).get();
             if (db.doesEntryExist(user.getId())) return;
-            try {
-                if (api.getServerById(mcdb.serverID).isPresent()) {
-                    new MessageBuilder()
-                            .append("You were added to a role with Minecraft Rewards on the " + api.getServerById(mcdb.serverID).get().getName() + " Discord Server!")
-                            .append("\nDo you have a Minecraft account? Answer using either \"yes\" or \"no\".")
-                            .send(user).thenAccept(msg -> pmChannel = msg.getChannel()).join();
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            user.addUserAttachableListener(new PMListener(role, pmChannel));
-        } catch (NullPointerException e) {
-            e.printStackTrace();
+            sendRoleAddMessage(role, user);
+        } catch (NoSuchElementException e) {
+            mcdb.error("Error adding user to role: " + discriminatedName + ". Stack Trace:");
+            mcdb.error(e.getMessage());
         }
+    }
+
+    private void sendRoleAddMessage(Role role, User user) {
+        try {
+            if (api.getServerById(mcdb.serverID).isPresent()) {
+                new MessageBuilder()
+                        .append("You were added to a role with Minecraft Rewards on the " + api.getServerById(mcdb.serverID).get().getName() + " Discord Server!")
+                        .append("\nDo you have a Minecraft account? Answer using either \"yes\" or \"no\".")
+                        .send(user).thenAccept(msg -> pmChannel = msg.getChannel()).join();
+            }
+        } catch (Exception e) {
+            mcdb.error("Error sending message to user: " + user.getDiscriminatedName() + ". Stack Trace:");
+            mcdb.error(e.getMessage());
+        }
+        user.addUserAttachableListener(new DMListener(role, pmChannel));
     }
 
     public void retroLink() {
@@ -178,20 +184,11 @@ public class JavacordStart {
     private int getUsers(int users, Role role, User[] usersInRole) {
         for (User user : usersInRole) {
             if (db.doesEntryExist(user.getId())) break;
-            try {
-                if (api.getServerById(mcdb.serverID).isPresent()) {
-                    new MessageBuilder()
-                            .append("You were added to a role with Minecraft Rewards on the " + api.getServerById(mcdb.serverID).get().getName() + " Discord Server!")
-                            .append("\nDo you have a Minecraft account? Answer using either \"yes\" or \"no\".")
-                            .send(user).thenAccept(msg -> pmChannel = msg.getChannel()).join();
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            user.addUserAttachableListener(new PMListener(role, pmChannel));
+            sendRoleAddMessage(role, user);
             users++;
         }
         mcdb.log(role.getName() + " : " + users);
+
         return users;
     }
 

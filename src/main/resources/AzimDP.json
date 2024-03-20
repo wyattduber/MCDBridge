@@ -1,0 +1,121 @@
+[
+  {
+    "groupId": "org.javacord",
+    "artifactId": "javacord-api",
+    "version": "3.8.0",
+    "oldRelocation": "org.javacord.javacord-api",
+    "newRelocation": "lib.org.javacord.javacord-api"
+  },
+  {
+    "groupId": "org.javacord",
+    "artifactId": "javacord-core",
+    "version": "3.8.0",
+    "oldRelocation": "org.javacord.javacord-core",
+    "newRelocation": "lib.org.javacord.javacord-core"
+  },
+  {
+    "groupId": "com.squareup.okhttp3",
+    "artifactId": "okhttp",
+    "version": "4.9.3",
+    "oldRelocation": "com.squareup.okhttp3.okhttp",
+    "newRelocation": "lib.com.squareup.okhttp3.okhttp"
+  },
+  {
+    "groupId": "com.squareup.okio",
+    "artifactId": "okio",
+    "version": "2.8.0",
+    "oldRelocation": "com.squareup.okio.okio",
+    "newRelocation": "lib.com.squareup.okio.okio"
+  },
+  {
+    "groupId": "org.jetbrains.kotlin",
+    "artifactId": "kotlin-stdlib-common",
+    "version": "1.4.0",
+    "oldRelocation": "org.jetbrains.kotlin.kotlin-stdlib-common",
+    "newRelocation": "lib.org.jetbrains.kotlin.kotlin-stdlib-common"
+  },
+  {
+    "groupId": "org.jetbrains.kotlin",
+    "artifactId": "kotlin-stdlib",
+    "version": "1.4.10",
+    "oldRelocation": "org.jetbrains.kotlin.kotlin-stdlib",
+    "newRelocation": "lib.org.jetbrains.kotlin.kotlin-stdlib"
+  },
+  {
+    "groupId": "com.squareup.okhttp3",
+    "artifactId": "logging-interceptor",
+    "version": "4.9.3",
+    "oldRelocation": "com.squareup.okhttp3.logging-interceptor",
+    "newRelocation": "lib.com.squareup.okhttp3.logging-interceptor"
+  },
+  {
+    "groupId": "org.jetbrains.kotlin",
+    "artifactId": "kotlin-stdlib-jdk8",
+    "version": "1.4.10",
+    "oldRelocation": "org.jetbrains.kotlin.kotlin-stdlib-jdk8",
+    "newRelocation": "lib.org.jetbrains.kotlin.kotlin-stdlib-jdk8"
+  },
+  {
+    "groupId": "org.jetbrains.kotlin",
+    "artifactId": "kotlin-stdlib-jdk7",
+    "version": "1.4.10",
+    "oldRelocation": "org.jetbrains.kotlin.kotlin-stdlib-jdk7",
+    "newRelocation": "lib.org.jetbrains.kotlin.kotlin-stdlib-jdk7"
+  },
+  {
+    "groupId": "com.neovisionaries",
+    "artifactId": "nv-websocket-client",
+    "version": "2.14",
+    "oldRelocation": "com.neovisionaries.nv-websocket-client",
+    "newRelocation": "lib.com.neovisionaries.nv-websocket-client"
+  },
+  {
+    "groupId": "com.codahale",
+    "artifactId": "xsalsa20poly1305",
+    "version": "0.11.0",
+    "oldRelocation": "com.codahale.xsalsa20poly1305",
+    "newRelocation": "lib.com.codahale.xsalsa20poly1305"
+  },
+  {
+    "groupId": "org.bouncycastle",
+    "artifactId": "bcprov-jdk15on",
+    "version": "1.60",
+    "oldRelocation": "org.bouncycastle.bcprov-jdk15on",
+    "newRelocation": "lib.org.bouncycastle.bcprov-jdk15on"
+  },
+  {
+    "groupId": "io.vavr",
+    "artifactId": "vavr",
+    "version": "0.10.4",
+    "oldRelocation": "io.vavr.vavr",
+    "newRelocation": "lib.io.vavr.vavr"
+  },
+  {
+    "groupId": "io.vavr",
+    "artifactId": "vavr-match",
+    "version": "0.10.4",
+    "oldRelocation": "io.vavr.vavr-match",
+    "newRelocation": "lib.io.vavr.vavr-match"
+  },
+  {
+    "groupId": "org.jetbrains",
+    "artifactId": "annotations",
+    "version": "16.0.1",
+    "oldRelocation": "org.jetbrains.annotations",
+    "newRelocation": "lib.org.jetbrains.annotations"
+  },
+  {
+    "groupId": "com.fasterxml.jackson.core",
+    "artifactId": "jackson-databind",
+    "version": "2.15.2",
+    "oldRelocation": "com.fasterxml.jackson.core.jackson-databind",
+    "newRelocation": "lib.com.fasterxml.jackson.core.jackson-databind"
+  },
+  {
+    "groupId": "com.fasterxml.jackson.core",
+    "artifactId": "jackson-annotations",
+    "version": "2.15.2",
+    "oldRelocation": "com.fasterxml.jackson.core.jackson-annotations",
+    "newRelocation": "lib.com.fasterxml.jackson.core.jackson-annotations"
+  }
+]

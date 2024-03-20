@@ -1,16 +1,17 @@
 # MCDBridge
 This is a plugin that can run commands on a Minecraft server when a specified role is given on a discord server. The Idea is to give rewards of some kind on a Minecraft server when a user gets a donation role on a discord server, such as Discord Nitro or Patreon.
 
-# Current Features 
+# Current Features
 
-• Set up an Arbitrary Amount of Discord Roles!
-• Each Role has an Arbitrary Amount of Commands to run when the Role is Added and Removed!
-• Built-in verification system through discord and minecraft to prevent users registering other accounts
+- Set up an Arbitrary Amount of Discord Roles!
+- Each Role has an Arbitrary Amount of Commands to run when the Role is Added and Removed!
+- Built-in verification system through discord and minecraft to prevent users registering other accounts
 
 And that's it.... for now.
 
-This plugin is only in the early stages of beta, and I am looking to expand it's features as I progress.
+This plugin is only in the early stages of beta, and I am looking to expand its features as I progress.
 This is my first attempt at a Minecraft plugin, and it seems to be working for what it's currently intended for.
+I'm open to any suggestions, please post a GitHub issue.
 
 # How to set up
 
@@ -27,42 +28,61 @@ Here's an example:
 # Config Example
 
 ```yml
+debug: false
+
 bot-token: "BOTTOKEN"
 server-id: "000000000000000000"
 
 roles:
  - patreon
-  - nitro
+ - nitro
 
 patreon:
   role-id: "000000000000000000"
   add-commands:
    - "say %USER% was given the Patreon Role!"
-    - "pay %USER% 100"
+   - "pay %USER% 100"
   remove-commands:
    - "say %USER% was removed from the Patreon Role"
-    - "smite %USER%"
+   - "smite %USER%"
 
 nitro:
   role-id: "000000000000000000"
   add-commands:
    - "say %USER% was given the Nitro Role!"
-    - "pay %USER% 100"
+   - "pay %USER% 100"
   remove-commands:
    - "say %USER% was removed from the Nitro Role"
-    - "smite %USER%"
+   - "smite %USER%"
 ```
 
-# Verification: 
+# Verification:
 
 1. When the role is added, the user on discord who received the role will be sent a message by the bot you used the token with asking the user if they have a minecraft account they would like to link and receive rewards for. From this point on, the user can type "cancel" to end the process at any of the following steps.
 
-2. If the user responds with "no", the bot will stop asking and nothing else happens. If the user responds with "yes", it will prompt them to  join the Minecraft server, then send their username to the bot. 
+2. If the user responds with "no", the bot will stop asking and nothing else happens. If the user responds with "yes", it will prompt them to  join the Minecraft server, then send their username to the bot.
 
 3. If the player is not on the server, it will ask them to repeat. If they are, plugin will send them a code on the minecraft server, which they send to the bot.
 
-4. If the code is correct, the plugin will run the role-add commands. 
+4. If the code is correct, the plugin will run the role-add commands.
 
-5. When the role is removed, the plugin will automatically run the role-remove commands. 
+5. When the role is removed, the plugin will automatically run the role-remove commands.
 
 6. Done!
+
+# Commands
+`<>` = Required Argument
+`()` = Optional Argument
+
+- `/mcdb reload` - Reloads the configuration file.
+- `/mcdb link <discord-username>` - Initiate the linking process.
+- `/mcdb unlink` - Unlink your account from the discord bot.
+- `/mcdb retroLink (discord-username) (role-name)` - Retroactively send link requests to all users in a role that existed before plugin installation (or if a role existed before being added as a rewarded role on minecraft). Can also be done on a single player.
+
+# Permissions
+
+- `mcdb.update` - Allows the user to be notified if there is a plugin update available.
+- `mcdb.command.link` - Allows the user to use the `/mcdb link` command.
+- `mcdb.command.unlink` - Allows the user to use the `/mcdb unlink` command.
+- `mcdb.command.retroLink` - Allows the user to use the `/mcdb retroLink` command.
+- `mcdb.command.reload` - Allows the user to use the `/mcdb reload` command.

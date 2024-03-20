@@ -1,16 +1,20 @@
-package com.Wcash;
+package me.wcash.mcdbridge;
 
-import com.Wcash.commands.MCDBCommand;
-import com.Wcash.database.Database;
-import com.Wcash.mclisteners.ChatListener;
-import com.Wcash.mclisteners.LoginListener;
-import net.byteflux.libby.BukkitLibraryManager;
-import com.Wcash.mclisteners.LogoutListener;
+import io.papermc.paper.event.player.AsyncChatEvent;
+import me.wcash.mcdbridge.commands.MCDBCommand;
+import me.wcash.mcdbridge.commands.tabcomplete.MCDBTabComplete;
+import me.wcash.mcdbridge.database.Database;
+import me.wcash.mcdbridge.javacord.JavacordHelper;
+import me.wcash.mcdbridge.lib.LibrarySetup;
+import me.wcash.mcdbridge.listeners.minecraft.ChatListener;
+import me.wcash.mcdbridge.listeners.minecraft.LoginListener;
+import me.wcash.mcdbridge.listeners.minecraft.LogoutListener;
 import net.luckperms.api.LuckPerms;
 import org.bukkit.Bukkit;
+import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.Plugin;
@@ -20,6 +24,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.logging.Level;
@@ -32,12 +37,13 @@ public class MCDBridge extends JavaPlugin {
     public PluginManager pluginManager;
     private static Database db;
     public static String[] versions = new String[2];
+    public boolean debugMode = false;
     public boolean usePex = false;
     public boolean useLuckPerms = false;
     public boolean changeNickOnLink;
     public String botToken;
     public String serverID;
-    public JavacordStart js;
+    public JavacordHelper js;
     public LuckPerms lp;
     public String[] roleNames;
     public HashMap<String, String> roleAndID = new HashMap<>(64);
@@ -54,8 +60,9 @@ public class MCDBridge extends JavaPlugin {
     @Override
     public void onEnable() {
 
-        /* Use Libby */
-        loadDependencies();
+        /* Load Dependencies */
+        LibrarySetup librarySetup = new LibrarySetup();
+        librarySetup.loadLibraries();
 
         /* Load and Initiate Configs */
         try {
@@ -63,22 +70,25 @@ public class MCDBridge extends JavaPlugin {
             config = getCustomConfig();
             saveCustomConfig();
         } catch (Exception e) {
-            error("Error setting up the config! Contact the developer if you cannot fix this issue");
+            error("Error setting up the config! Contact the developer if you cannot fix this issue. Stack Trace:");
+            error(e.getMessage());
         }
 
         /* Load the Database */
         try {
             db = new Database("mcdb.sqlite.db");
             log("Database Found! Path is " + db.getDbPath());
-        } catch (Exception e) {
-            error("Error setting up database! Contact the developer if you cannot fix this issue");
+        } catch (SQLException e) {
+            error("Error setting up database! Is there permissions issue preventing the database file creation?");
+            error("Exception Message:" + e.getMessage());
+            error("SQL State: " + e.getSQLState());
         }
 
         /* Config Parsing */
         if (parseConfig()) {
             parseRoles();
             initChatStream();
-            js = new JavacordStart(roleNames);
+            js = new JavacordHelper(roleNames);
             initListeners();
         } else {
             error("Config Not Properly Configured! Plugin will not function!");
@@ -91,8 +101,10 @@ public class MCDBridge extends JavaPlugin {
         /* Commands */
         try {
             Objects.requireNonNull(this.getCommand("mcdb")).setExecutor(new MCDBCommand());
+            Objects.requireNonNull(this.getCommand("mcdb")).setTabCompleter(new MCDBTabComplete());
         } catch (NullPointerException e) {
-            e.printStackTrace();
+            error("Error setting up commands! Contact the developer if you cannot fix this issue. Stack Trace:");
+            error(e.getMessage());
         }
 
         if (useChatStream) {
@@ -112,18 +124,6 @@ public class MCDBridge extends JavaPlugin {
         }
     }
 
-    public void loadDependencies() {
-        BukkitLibraryManager manager = new BukkitLibraryManager(this); //depends on the server core you are using
-        manager.addMavenCentral(); //there are also methods for other repositories
-        manager.fromGeneratedResource(this.getResource("AzimDP.json")).forEach(library->{
-            try {
-                manager.loadLibrary(library);
-            }catch(RuntimeException e) { // in case some of the libraries cant be found or dont have .jar file or etc
-                getLogger().info("Skipping download of\""+library+"\", it either doesnt exist or has no .jar file");
-            }
-        });
-    }
-
     public void reload() {
         reloadCustomConfig();
         config = getCustomConfig();
@@ -132,7 +132,17 @@ public class MCDBridge extends JavaPlugin {
         PlayerJoinEvent.getHandlerList().unregister(this);
         if (useChatStream) {
             PlayerQuitEvent.getHandlerList().unregister(this);
-            AsyncPlayerChatEvent.getHandlerList().unregister(this);
+            AsyncChatEvent.getHandlerList().unregister(this);
+        }
+
+        /* Reload database if it's gone */
+        try {
+            if (!db.testConnection())
+                if (db.getDbPath().isEmpty() || db.getDbPath().isBlank() || db.getDbPath() == null) new Database("mcdbridge.sqlite.db");
+        } catch (SQLException e) {
+            error("Error setting up database! Is there permissions issue preventing the database file creation? View the following error message:");
+            error("Error Message: " + e.getMessage());
+            error("SQL State: " + e.getSQLState());
         }
 
         if (parseConfig()) {
@@ -141,10 +151,11 @@ public class MCDBridge extends JavaPlugin {
             initChatStream();
         } else {
             error("Config Not Properly Configured! Plugin will not function!");
+            return;
         }
 
-        if (parseConfig() || js == null) {
-            js = new JavacordStart(roleNames);
+        if (js == null) {
+            js = new JavacordHelper(roleNames);
         } else {
             js.reload();
         }
@@ -155,16 +166,17 @@ public class MCDBridge extends JavaPlugin {
         try {
             new UpdateChecker(this, 88409).getVersion(version -> {
                 // Initializes Login Listener when no Updates
-                if (!this.getDescription().getVersion().equalsIgnoreCase(version)) {
+                if (compareVersions(this.getPluginMeta().getVersion(), version) < 0) {
                     versions[0] = version;
-                    versions[1] = this.getDescription().getVersion();
+                    versions[1] = this.getPluginMeta().getVersion();
                     getServer().getPluginManager().registerEvents(new LoginListener(true, versions), this);
                 } else {
                     getServer().getPluginManager().registerEvents(new LoginListener(false, versions), this);
                 }
             });
         } catch (Exception e) {
-            e.printStackTrace();
+            error("Error initializing Update Checker! Contact the developer if you cannot fix this issue. Stack Trace:");
+            error(e.getMessage());
         }
         log("Minecraft Listeners Loaded!");
     }
@@ -196,17 +208,18 @@ public class MCDBridge extends JavaPlugin {
     }
 
     public Plugin getPermissionsPlugin(PluginManager pluginManager) {
-
         try {
             permissionsPlugin = pluginManager.getPlugin("PermissionsEx");
+            assert permissionsPlugin != null;
             if (permissionsPlugin.isEnabled() && getConfigBool("chatstream-use-permission-groups")) {
                 usePex = true;
                 useLuckPerms = false;
                 log("PermissionsEx Detected! Hooking Permissions");
             }
-        } catch (NullPointerException e) {
+        } catch (AssertionError | NullPointerException e) {
             try {
                 permissionsPlugin = pluginManager.getPlugin("LuckPerms");
+                assert permissionsPlugin != null;
                 if (permissionsPlugin.isEnabled() && getConfigBool("chatstream-use-permission-groups")) {
                     RegisteredServiceProvider<LuckPerms> provider = Bukkit.getServicesManager().getRegistration(LuckPerms.class);
                     if (provider != null) {
@@ -216,7 +229,7 @@ public class MCDBridge extends JavaPlugin {
                     usePex = false;
                     log("LuckPerms Detected! Hooking Permissions");
                 }
-            } catch (NullPointerException f) {
+            } catch (AssertionError | NullPointerException f) {
                 log("No permissions plugin found!");
             }
         }
@@ -224,7 +237,6 @@ public class MCDBridge extends JavaPlugin {
     }
 
     private void parseRoles() {
-
         try {
             roleNames = new String[config.getStringList("roles").size()];
 
@@ -243,7 +255,7 @@ public class MCDBridge extends JavaPlugin {
             }
         } catch (Exception e) {
             saveDefaultConfig();
-            error("Error parsing roles! Make sure the config.yml is correct and reload the plugin.");
+            error("Error parsing roles! Make sure the config.yml is correct and reload the plugin. Stack Trace:");
         }
     }
 
@@ -253,7 +265,7 @@ public class MCDBridge extends JavaPlugin {
         log("ChatStream enabled! Loading necessary config items");
         try {
             chatStreamID = getConfigString("chatstream-channel");
-            chatStreamMessageFormat = getConfigString("chatstream-message-format");
+            chatStreamMessageFormat = replaceColors(getConfigString("chatstream-message-format"));
         } catch (Exception e) {
             saveDefaultConfig();
             warn("Invalid Channel ID for ChatStream! Please enter a valid Channel ID in the config.yml and reload the plugin.");
@@ -283,7 +295,8 @@ public class MCDBridge extends JavaPlugin {
         try {
             defConfigStream = new InputStreamReader(Objects.requireNonNull(this.getResource("config.yml")), StandardCharsets.UTF_8);
         } catch (Exception e) {
-            e.printStackTrace();
+            error("Error loading default config! Contact the developer if you cannot fix this issue. Stack Trace:");
+            error(e.getMessage());
         }
         if (defConfigStream != null) {
             YamlConfiguration defConfig = YamlConfiguration.loadConfiguration(defConfigStream);
@@ -331,4 +344,84 @@ public class MCDBridge extends JavaPlugin {
         this.getLogger().log(Level.SEVERE, message);
     }
 
+    public void debug(String message) {
+        this.getLogger().log(Level.FINE, message);
+    }
+
+    public void sendMessage(CommandSender sender, String message) {
+        if (sender instanceof Player player) {
+            player.sendMessage("§f[§9MCDBridge§f] " + replaceColors(message));
+        } else {
+            log(message);
+        }
+    }
+
+    // Method to compare two versions numerically
+    private int compareVersions(String installedVersion, String newestVersion) {
+        String[] installedParts = installedVersion.split("\\.");
+        String[] newestParts = newestVersion.split("\\.");
+
+        int minLength = Math.min(installedParts.length, newestParts.length);
+        for (int i = 0; i < minLength; i++) {
+            int installedPart = Integer.parseInt(installedParts[i]);
+            int newestPart = Integer.parseInt(newestParts[i]);
+            if (installedPart < newestPart) {
+                return -1; // installed version is older
+            } else if (installedPart > newestPart) {
+                return 1; // installed version is newer
+            }
+        }
+
+        // If we reach here, versions are equal up to minLength
+        // So, if one version has more parts, it is considered newer
+        if (installedParts.length < newestParts.length) {
+            return -1; // installed version is older
+        } else if (installedParts.length > newestParts.length) {
+            return 1; // installed version is newer
+        } else {
+            return 0; // versions are exactly the same
+        }
+    }
+
+    /**
+     * The escape sequence for minecraft special chat codes
+     */
+    public static final char ESCAPE = '§';
+
+    /**
+     * Replace all the color codes (prepended with &) with the corresponding color code.
+     * This uses raw char arrays, so it can be considered to be extremely fast.
+     *
+     * @param text the text to replace the color codes in
+     * @return string with color codes replaced
+     */
+    public static String replaceColors(String text) {
+        char[] chrarray = text.toCharArray();
+
+        for (int index = 0; index < chrarray.length; index ++) {
+            char chr = chrarray[index];
+
+            // Ignore anything that we don't want
+            if (chr != '&') {
+                continue;
+            }
+
+            if ((index + 1) == chrarray.length) {
+                // we are at the end of the array
+                break;
+            }
+
+            // get the forward char
+            char forward = chrarray[index + 1];
+
+            // is it in range?
+            if ((forward >= '0' && forward <= '9') || (forward >= 'a' && forward <= 'f') || (forward >= 'k' && forward <= 'r')) {
+                // It is! Replace the char we are at now with the escape sequence
+                chrarray[index] = ESCAPE;
+            }
+        }
+
+        // Rebuild the string and return it
+        return new String(chrarray);
+    }
 }
